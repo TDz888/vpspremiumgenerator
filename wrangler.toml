@@ -1,0 +1,5 @@
+# wrangler.toml
+name = "singularity-cloud"
+compatibility_date = "2024-12-18"
+compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = "public"
