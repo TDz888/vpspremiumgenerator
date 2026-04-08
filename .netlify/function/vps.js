@@ -9,12 +9,10 @@ exports.handler = async (event, context) => {
     'Content-Type': 'application/json'
   };
 
-  // OPTIONS preflight
   if (event.httpMethod === 'OPTIONS') {
     return { statusCode: 204, headers, body: '' };
   }
 
-  // GET - Lấy danh sách VM
   if (event.httpMethod === 'GET') {
     return {
       statusCode: 200,
@@ -23,12 +21,9 @@ exports.handler = async (event, context) => {
     };
   }
 
-  // DELETE - Xóa VM
   if (event.httpMethod === 'DELETE') {
     const id = event.queryStringParameters?.id;
-    if (id) {
-      vms = vms.filter(v => v.id !== id);
-    }
+    if (id) vms = vms.filter(v => v.id !== id);
     return {
       statusCode: 200,
       headers,
@@ -36,7 +31,6 @@ exports.handler = async (event, context) => {
     };
   }
 
-  // POST - Tạo VM
   if (event.httpMethod === 'POST') {
     try {
       const body = JSON.parse(event.body || '{}');
@@ -46,29 +40,16 @@ exports.handler = async (event, context) => {
         return {
           statusCode: 200,
           headers,
-          body: JSON.stringify({ success: false, error: 'Vui lòng nhập GitHub Token' })
-        };
-      }
-
-      if (!tailscaleKey) {
-        return {
-          statusCode: 200,
-          headers,
-          body: JSON.stringify({ success: false, error: 'Vui lòng nhập Tailscale Key' })
+          body: JSON.stringify({ success: false, error: 'Thiếu GitHub Token' })
         };
       }
 
       const username = vmUsername || 'user_' + Math.floor(Math.random() * 10000);
       const password = vmPassword || 'Pass@' + Math.random().toString(36).substring(2, 12);
 
-      let repoUrl = null;
-      let workflowUrl = null;
-      let status = 'creating';
-      let error = null;
-      let owner = null;
+      let repoUrl = null, workflowUrl = null, status = 'creating', error = null, owner = null;
 
       try {
-        // 1. Xác thực GitHub Token
         const userRes = await fetch('https://api.github.com/user', {
           headers: { 'Authorization': `Bearer ${githubToken}` }
         });
@@ -76,11 +57,9 @@ exports.handler = async (event, context) => {
 
         if (!user.login) {
           status = 'failed';
-          error = 'Token GitHub không hợp lệ hoặc đã hết hạn';
+          error = 'Token GitHub không hợp lệ';
         } else {
           owner = user.login;
-          
-          // 2. Tạo repository
           const repoName = 'vm-' + Date.now() + '-' + Math.random().toString(36).substring(2, 8);
           const createRes = await fetch('https://api.github.com/user/repos', {
             method: 'POST',
@@ -90,7 +69,7 @@ exports.handler = async (event, context) => {
             },
             body: JSON.stringify({
               name: repoName,
-              description: `Virtual Machine created by ${username}`,
+              description: `VM by ${username}`,
               private: false,
               auto_init: true
             })
@@ -103,7 +82,7 @@ exports.handler = async (event, context) => {
             status = 'running';
           } else {
             status = 'failed';
-            error = repo.message || 'Không thể tạo repository';
+            error = repo.message || 'Tạo repository thất bại';
           }
         }
       } catch (err) {
@@ -128,20 +107,11 @@ exports.handler = async (event, context) => {
       vms = [newVM, ...vms];
       if (vms.length > 20) vms.pop();
 
-      if (status === 'running') {
-        return {
-          statusCode: 200,
-          headers,
-          body: JSON.stringify({ success: true, ...newVM, message: `✅ VM "${username}" đã được tạo thành công!` })
-        };
-      } else {
-        return {
-          statusCode: 200,
-          headers,
-          body: JSON.stringify({ success: false, error: error, ...newVM })
-        };
-      }
-
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify({ success: true, ...newVM })
+      };
     } catch (error) {
       return {
         statusCode: 200,
