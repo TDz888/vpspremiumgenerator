@@ -61,8 +61,6 @@
         .input-label { display: block; font-size: 0.8rem; font-weight: 500; margin-bottom: 8px; color: var(--text-muted); }
         .input-field { width: 100%; background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; color: var(--text); font-size: 0.9rem; transition: all 0.2s; }
         .input-field:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(139,92,246,0.2); }
-        
-        /* Input row with random button - FIXED */
         .input-row { display: flex; gap: 12px; align-items: flex-end; }
         .input-row .input-group { flex: 1; margin-bottom: 0; }
         .random-btn { background: rgba(139,92,246,0.2); border: 1px solid var(--border); border-radius: 12px; padding: 12px 20px; color: var(--primary); cursor: pointer; font-size: 0.85rem; transition: all 0.2s; white-space: nowrap; }
@@ -108,7 +106,7 @@
         .vm-expand-icon { transition: transform 0.2s; }
         .vm-item.open .vm-expand-icon { transform: rotate(180deg); }
         .vm-detail { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; border-top: 1px solid transparent; }
-        .vm-item.open .vm-detail { max-height: 600px; border-top-color: var(--border); padding: 20px; }
+        .vm-item.open .vm-detail { max-height: 500px; border-top-color: var(--border); padding: 20px; }
         .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
         .info-box { background: rgba(0,0,0,0.2); border-radius: 12px; padding: 16px; }
         .info-title { font-size: 0.7rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 12px; }
@@ -117,8 +115,6 @@
         .vm-links { display: flex; gap: 12px; margin-top: 16px; flex-wrap: wrap; }
         .vm-link { background: rgba(59,130,246,0.2); padding: 8px 16px; border-radius: 10px; font-size: 0.75rem; text-decoration: none; color: var(--info); display: inline-flex; align-items: center; gap: 6px; }
         .vm-delete { background: rgba(239,68,68,0.2); color: var(--error); padding: 8px 16px; border-radius: 10px; font-size: 0.75rem; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 6px; }
-        .vm-progress-bar { margin-top: 16px; background: rgba(0,0,0,0.3); border-radius: 10px; height: 6px; overflow: hidden; }
-        .vm-progress-fill { background: linear-gradient(90deg, var(--primary), var(--secondary)); height: 100%; width: 0%; transition: width 0.3s; }
         
         /* Debug Panel */
         .debug-panel { background: var(--card); backdrop-filter: blur(10px); border: 1px solid var(--border); border-radius: 24px; margin-top: 24px; overflow: hidden; }
@@ -146,12 +142,13 @@
     <div class="container">
         <div class="header">
             <div class="logo"><i class="fas fa-infinity"></i> SINGULARITY CLUB</div>
-            <div class="subtitle">Hell & Heaven Virtual Machine Platform • 144Hz Quantum Fabric</div>
+            <div class="subtitle">Hell & Heaven Virtual Machine Platform • Powered by GitHub Actions</div>
             <div class="badge-container">
                 <div class="badge"><i class="fab fa-github"></i> GitHub Actions</div>
                 <div class="badge"><i class="fas fa-network-wired"></i> Tailscale Mesh</div>
                 <div class="badge"><i class="fas fa-shield-alt"></i> Quantum Security</div>
                 <div class="badge"><i class="fas fa-chart-line"></i> Real-time Monitor</div>
+                <div class="badge"><i class="fas fa-cloud"></i> Netlify Hosting</div>
             </div>
         </div>
 
@@ -167,10 +164,8 @@
                 <div class="card-title"><i class="fas fa-rocket"></i> Khởi tạo Virtual Machine</div>
                 <div class="input-group"><label class="input-label"><i class="fab fa-github"></i> GitHub Token</label><input type="password" class="input-field" id="githubToken" placeholder="ghp_xxxxxxxxxxxx"></div>
                 <div class="input-group"><label class="input-label"><i class="fas fa-network-wired"></i> Tailscale Key</label><input type="password" class="input-field" id="tailscaleKey" placeholder="tskey-xxxxxxxxxxxx"></div>
-                
                 <div class="input-row"><div class="input-group"><label class="input-label"><i class="fas fa-user"></i> Tên đăng nhập</label><input type="text" class="input-field" id="vmUsername" placeholder="username"></div><button class="random-btn" id="randomUserBtn"><i class="fas fa-dice"></i> Random</button></div>
                 <div class="input-row"><div class="input-group"><label class="input-label"><i class="fas fa-lock"></i> Mật khẩu</label><input type="password" class="input-field" id="vmPassword" placeholder="password"></div><button class="random-btn" id="randomPassBtn"><i class="fas fa-dice"></i> Random</button></div>
-                
                 <div class="progress-container" id="progressContainer"><div class="progress-steps" id="progressSteps"><div class="progress-step">Token</div><div class="progress-step">Repo</div><div class="progress-step">Workflow</div><div class="progress-step">Trigger</div><div class="progress-step">Done</div></div><div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div><div class="progress-text" id="progressText">Sẵn sàng</div></div>
                 <button class="btn btn-primary" id="createBtn"><i class="fas fa-play"></i> Tạo VM Ngay</button>
                 <div class="quick-actions"><div class="quick-btn" id="demoBtn"><i class="fas fa-flask"></i> Demo</div><div class="quick-btn" id="clearBtn"><i class="fas fa-eraser"></i> Xóa form</div><div class="quick-btn" id="refreshBtn"><i class="fas fa-sync-alt"></i> Làm mới</div><div class="quick-btn" id="saveConfigBtn"><i class="fas fa-save"></i> Lưu config</div><div class="quick-btn" id="loadConfigBtn"><i class="fas fa-folder-open"></i> Tải config</div></div>
@@ -183,13 +178,14 @@
             </div>
         </div>
 
-        <div class="debug-panel"><div class="debug-header" id="debugHeader"><div><i class="fas fa-terminal"></i> Quantum Debug Console</div><div><button class="debug-clear" id="clearLogsBtn" style="background:none; border:none; color:var(--warning); cursor:pointer;"><i class="fas fa-trash"></i> Xóa</button> <span id="debugToggle">▼</span></div></div><div class="debug-content" id="debugLogs"><div class="debug-log"><span class="debug-time">--:--:--</span><span class="debug-info">🚀 Hệ thống khởi tạo thành công</span></div><div class="debug-log"><span class="debug-time">--:--:--</span><span class="debug-info">📡 API kết nối /api/vps</span></div></div></div>
+        <div class="debug-panel"><div class="debug-header" id="debugHeader"><div><i class="fas fa-terminal"></i> Quantum Debug Console</div><div><button class="debug-clear" id="clearLogsBtn" style="background:none; border:none; color:var(--warning); cursor:pointer;"><i class="fas fa-trash"></i> Xóa</button> <span id="debugToggle">▼</span></div></div><div class="debug-content" id="debugLogs"><div class="debug-log"><span class="debug-time">--:--:--</span><span class="debug-info">🚀 Hệ thống khởi tạo thành công</span></div><div class="debug-log"><span class="debug-time">--:--:--</span><span class="debug-info">📡 API kết nối Netlify Functions</span></div></div></div>
     </div>
     <div id="toast" class="toast"><i class="fas fa-check-circle"></i> <span id="toastMsg"></span></div>
 
     <script>
-        // ============================================ // CONFIG // ============================================
-        const API_URL = '/api/vps';
+        // ============================================ // NETLIFY API CONFIG // ============================================
+        const API_URL = '/.netlify/functions/vps';
+        
         let vms = [], sessionStart = Date.now(), refreshInterval = null;
         let currentFilter = 'all', currentSort = 'newest';
         let totalCreations = 0, successfulCreations = 0;
@@ -226,7 +222,6 @@
             addLog(msg, type); 
         }
         
-        // Random username: 8 chữ thường + số
         function randomUsername() {
             const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
             let result = '';
@@ -234,22 +229,18 @@
             return result;
         }
         
-        // Random password: 23 ký tự (chữ hoa, chữ thường, số, ký tự đặc biệt)
         function randomPassword() {
             const upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
             const lower = 'abcdefghijklmnopqrstuvwxyz';
             const numbers = '0123456789';
-            const special = '!@#$%^&*()_+-=[]{}|;:,.<>?';
+            const special = '!@#$%^&*';
             const all = upper + lower + numbers + special;
             let result = '';
-            // Đảm bảo có ít nhất 1 ký tự mỗi loại
             result += upper[Math.floor(Math.random() * upper.length)];
             result += lower[Math.floor(Math.random() * lower.length)];
             result += numbers[Math.floor(Math.random() * numbers.length)];
             result += special[Math.floor(Math.random() * special.length)];
-            // Thêm 19 ký tự ngẫu nhiên nữa để tổng 23
             for (let i = 0; i < 19; i++) result += all[Math.floor(Math.random() * all.length)];
-            // Trộn ngẫu nhiên
             return result.split('').sort(() => Math.random() - 0.5).join('');
         }
         
@@ -287,8 +278,7 @@
             if (filtered.length === 0) { elements.vmList.innerHTML = `<div class="empty-state"><div class="empty-icon"><i class="fas fa-cloud-upload-alt"></i></div><div>✨ Chưa có VM nào | Tạo VM đầu tiên bên trái ✨</div></div>`; return; }
             elements.vmList.innerHTML = filtered.map(vm => {
                 const progress = vm.status === 'creating' ? Math.min(95, Math.floor((Date.now() - new Date(vm.createdAt).getTime()) / 360000)) : (vm.status === 'running' ? 100 : 0);
-                const stepName = progress < 20 ? 'Đang tạo repository...' : progress < 40 ? 'Đang tạo workflow...' : progress < 60 ? 'Đang trigger...' : progress < 80 ? 'Đợi GitHub Runner...' : progress < 95 ? 'Đang cài đặt...' : 'Đã sẵn sàng!';
-                return `<div class="vm-item" data-id="${vm.id}"><div class="vm-header" onclick="toggleVM('${vm.id}')"><div class="vm-info"><div class="vm-icon"><i class="fas ${vm.status === 'running' ? 'fa-play-circle' : 'fa-spinner fa-pulse'}"></i></div><div><div class="vm-name">${vm.name || vm.id.substring(0,15)}</div><div class="vm-time">${new Date(vm.createdAt).toLocaleString()}</div></div></div><div style="display:flex; gap:12px; align-items:center;"><span class="vm-status status-${vm.status || 'creating'}">${vm.status || 'creating'}</span><i class="fas fa-chevron-down vm-expand-icon"></i></div></div><div class="vm-detail"><div class="info-grid"><div class="info-box"><div class="info-title"><i class="fas fa-user"></i> Thông tin đăng nhập</div><div class="info-value"><span>${vm.username || 'N/A'}</span><button class="copy-btn" onclick="copyText('${(vm.username || '').replace(/'/g, "\\'")}')">Sao chép</button></div><div class="info-value" style="margin-top:8px;"><span>••••••••</span><button class="copy-btn" onclick="copyText('${(vm.password || '').replace(/'/g, "\\'")}')">Sao chép</button></div></div>${vm.tailscaleIP ? `<div class="info-box"><div class="info-title"><i class="fas fa-network-wired"></i> Mạng</div><div class="info-value"><span>${vm.tailscaleIP}</span><button class="copy-btn" onclick="copyText('${vm.tailscaleIP}')">Sao chép</button></div></div>` : ''}<div class="info-box"><div class="info-title"><i class="fas fa-clock"></i> Thời gian hết hạn</div><div class="info-value">${vm.expiresAt ? new Date(vm.expiresAt).toLocaleString() : '6 giờ'}</div></div></div><div class="vm-progress-bar"><div class="vm-progress-fill" style="width:${progress}%"></div></div><div class="vm-links">${vm.repoUrl ? `<a href="${vm.repoUrl}" target="_blank" class="vm-link"><i class="fab fa-github"></i> Repository</a>` : ''}${vm.workflowUrl ? `<a href="${vm.workflowUrl}" target="_blank" class="vm-link"><i class="fas fa-code-branch"></i> GitHub Actions</a>` : ''}<button class="vm-delete" onclick="deleteVM('${vm.id}')"><i class="fas fa-trash"></i> Xóa VM</button></div></div></div>`;
+                return `<div class="vm-item" data-id="${vm.id}"><div class="vm-header" onclick="toggleVM('${vm.id}')"><div class="vm-info"><div class="vm-icon"><i class="fas ${vm.status === 'running' ? 'fa-play-circle' : 'fa-spinner fa-pulse'}"></i></div><div><div class="vm-name">${vm.name || vm.id.substring(0,15)}</div><div class="vm-time">${new Date(vm.createdAt).toLocaleString()}</div></div></div><div style="display:flex; gap:12px; align-items:center;"><span class="vm-status status-${vm.status || 'creating'}">${vm.status || 'creating'}</span><i class="fas fa-chevron-down vm-expand-icon"></i></div></div><div class="vm-detail"><div class="info-grid"><div class="info-box"><div class="info-title"><i class="fas fa-user"></i> Thông tin đăng nhập</div><div class="info-value"><span>${vm.username || 'N/A'}</span><button class="copy-btn" onclick="copyText('${(vm.username || '').replace(/'/g, "\\'")}')">Sao chép</button></div><div class="info-value" style="margin-top:8px;"><span>••••••••</span><button class="copy-btn" onclick="copyText('${(vm.password || '').replace(/'/g, "\\'")}')">Sao chép</button></div></div><div class="info-box"><div class="info-title"><i class="fas fa-clock"></i> Thời gian hết hạn</div><div class="info-value">${vm.expiresAt ? new Date(vm.expiresAt).toLocaleString() : '6 giờ'}</div></div></div><div class="vm-links">${vm.repoUrl ? `<a href="${vm.repoUrl}" target="_blank" class="vm-link"><i class="fab fa-github"></i> Repository</a>` : ''}${vm.workflowUrl ? `<a href="${vm.workflowUrl}" target="_blank" class="vm-link"><i class="fas fa-code-branch"></i> GitHub Actions</a>` : ''}<button class="vm-delete" onclick="deleteVM('${vm.id}')"><i class="fas fa-trash"></i> Xóa VM</button></div></div></div>`;
             }).join('');
         }
         
@@ -404,8 +394,8 @@
         loadVMs();
         refreshInterval = setInterval(loadVMs, 10000);
         setInterval(updateStats, 1000);
-        addLog('🚀 Singularity Club v7.0 khởi động', 'success');
-        addLog('🔗 Kết nối backend: ' + API_URL, 'info');
+        addLog('🚀 Singularity Club v7.0 khởi động trên Netlify', 'success');
+        addLog(`🔗 API endpoint: ${API_URL}`, 'info');
         addLog('🔐 Mật khẩu mặc định: 23 ký tự (chữ hoa, thường, số, ký tự đặc biệt)', 'info');
     </script>
 </body>
