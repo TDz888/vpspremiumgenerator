@@ -1,9 +1,0 @@
-# Đây là cấu hình cho Cloudflare Pages
-name = "singularity-cloud"
-pages_build_output_dir = "public"   # Thư mục chứa file tĩnh của bạn
-
-# BẬT NODE.JS COMPATIBILITY Ở ĐÂY
-compatibility_flags = ["nodejs_compat"]
-
-# Đặt ngày tương thích gần với ngày hiện tại (ví dụ: 2025-01-01)
-compatibility_date = "2025-01-01"
