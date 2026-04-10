@@ -3,32 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Singularity Club | Terminal VPS Platform</title>
+    <title>Singularity Club | Quantum Terminal VPS</title>
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
-        /* Terminal Theme Variables */
+        /* ============================================ */
+        /* QUANTUM TERMINAL THEME - Premium Design */
+        /* ============================================ */
         :root {
-            --terminal-bg: #0a0e12;
-            --terminal-bg-light: #0f1419;
-            --terminal-header: #1a1f24;
-            --terminal-border: #2a2f35;
+            --terminal-bg: #050a0f;
+            --terminal-bg-light: #0a1118;
+            --terminal-header: #0d1620;
+            --terminal-border: rgba(46, 204, 113, 0.15);
+            --terminal-glow: rgba(46, 204, 113, 0.3);
             --terminal-text: #c9d1d9;
             --terminal-text-dim: #8b949e;
             --terminal-green: #2ecc71;
-            --terminal-red: #e74c3c;
-            --terminal-yellow: #f1c40f;
+            --terminal-cyan: #1abc9c;
             --terminal-blue: #3498db;
             --terminal-purple: #9b59b6;
-            --terminal-cyan: #1abc9c;
-            --terminal-orange: #e67e22;
             --terminal-pink: #e84393;
-            --glow-green: 0 0 10px rgba(46, 204, 113, 0.3);
-            --glow-red: 0 0 10px rgba(231, 76, 60, 0.3);
-            --glow-blue: 0 0 10px rgba(52, 152, 219, 0.3);
+            --terminal-red: #e74c3c;
+            --terminal-yellow: #f1c40f;
+            --gradient-1: linear-gradient(135deg, #2ecc71, #1abc9c);
+            --gradient-2: linear-gradient(135deg, #3498db, #9b59b6);
+            --gradient-3: linear-gradient(135deg, #e84393, #f1c40f);
+            --glass-bg: rgba(10, 17, 24, 0.7);
+            --glass-border: rgba(46, 204, 113, 0.2);
+            --shadow-glow: 0 0 20px rgba(46, 204, 113, 0.2);
+            --shadow-glow-strong: 0 0 30px rgba(46, 204, 113, 0.4);
+            --border-radius-sm: 12px;
+            --border-radius-md: 16px;
+            --border-radius-lg: 20px;
+            --border-radius-xl: 24px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-slow: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
         body {
@@ -37,162 +49,179 @@
             color: var(--terminal-text);
             min-height: 100vh;
             position: relative;
+            overflow-x: hidden;
         }
         
-        /* CRT Screen Effect */
-        body::before {
-            content: '';
+        /* Animated Gradient Background */
+        .animated-bg {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: repeating-linear-gradient(
-                0deg,
-                rgba(0, 0, 0, 0.1) 0px,
-                rgba(0, 0, 0, 0.1) 2px,
-                transparent 2px,
-                transparent 4px
-            );
-            pointer-events: none;
-            z-index: 1;
+            background: radial-gradient(circle at 20% 30%, rgba(46, 204, 113, 0.08) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 70%, rgba(52, 152, 219, 0.08) 0%, transparent 50%);
+            z-index: -2;
+            animation: bgPulse 8s ease-in-out infinite;
         }
+        @keyframes bgPulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
         
-        /* Scanline effect */
-        body::after {
-            content: '';
+        /* Matrix Rain Effect */
+        .matrix-rain {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(180deg, transparent 50%, rgba(0, 255, 0, 0.02) 50%);
-            background-size: 100% 4px;
             pointer-events: none;
-            z-index: 1;
+            z-index: -1;
+            opacity: 0.15;
+        }
+        
+        /* CRT Scanline */
+        .crt-effect {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(0deg, rgba(0, 255, 0, 0.03) 0px, rgba(0, 255, 0, 0.03) 2px, transparent 2px, transparent 4px);
+            pointer-events: none;
+            z-index: 3;
             animation: scanline 8s linear infinite;
         }
-        @keyframes scanline {
-            0% { transform: translateY(0); }
-            100% { transform: translateY(100%); }
-        }
+        @keyframes scanline { 0% { transform: translateY(0); } 100% { transform: translateY(100%); } }
         
-        /* Terminal Cursor Blink */
-        @keyframes blink {
-            0%, 50% { opacity: 1; }
-            51%, 100% { opacity: 0; }
+        /* Flicker Effect */
+        @keyframes flicker {
+            0%, 100% { opacity: 1; }
+            95% { opacity: 0.8; }
+            96% { opacity: 1; }
+            97% { opacity: 0.9; }
+            98% { opacity: 1; }
         }
         
         .container { max-width: 1400px; margin: 0 auto; padding: 20px; position: relative; z-index: 2; }
         
-        /* Terminal Header */
+        /* Glassmorphism Terminal Header */
         .terminal-header {
-            background: var(--terminal-header);
-            border: 1px solid var(--terminal-border);
-            border-radius: 12px 12px 0 0;
-            padding: 12px 20px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
+            padding: 14px 24px;
             display: flex;
             align-items: center;
-            gap: 12px;
-            margin-bottom: 0;
+            gap: 16px;
+            position: relative;
+            overflow: hidden;
         }
-        .terminal-dots {
-            display: flex;
-            gap: 8px;
+        .terminal-header::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--gradient-1);
+            animation: gradientMove 3s infinite;
         }
-        .terminal-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-        }
+        @keyframes gradientMove { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
+        
+        .terminal-dots { display: flex; gap: 10px; }
+        .terminal-dot { width: 14px; height: 14px; border-radius: 50%; transition: var(--transition); }
         .terminal-dot.red { background: #ff5f56; }
+        .terminal-dot.red:hover { background: #ff5f56; box-shadow: 0 0 10px #ff5f56; }
         .terminal-dot.yellow { background: #ffbd2e; }
+        .terminal-dot.yellow:hover { box-shadow: 0 0 10px #ffbd2e; }
         .terminal-dot.green { background: #27c93f; }
+        .terminal-dot.green:hover { box-shadow: 0 0 10px #27c93f; }
+        
         .terminal-title {
             flex: 1;
             text-align: center;
             font-family: monospace;
-            font-size: 0.8rem;
-            color: var(--terminal-text-dim);
+            font-size: 0.85rem;
+            color: var(--terminal-green);
+            text-shadow: 0 0 5px var(--terminal-glow);
         }
-        .terminal-title i { margin-right: 6px; }
         
-        /* Terminal Window */
+        /* Terminal Window with Glassmorphism */
         .terminal-window {
-            background: var(--terminal-bg-light);
-            border: 1px solid var(--terminal-border);
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
             border-top: none;
-            border-radius: 0 0 12px 12px;
-            padding: 20px;
-            margin-bottom: 24px;
+            border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg);
+            padding: 24px;
+            margin-bottom: 28px;
+            position: relative;
+            overflow: hidden;
         }
         
-        /* Prompt line */
+        /* Typing Text Animation */
+        .typing-text {
+            overflow: hidden;
+            border-right: 2px solid var(--terminal-green);
+            white-space: nowrap;
+            animation: typing 2s steps(40, end), blink-caret 0.75s step-end infinite;
+        }
+        @keyframes typing { from { width: 0; } to { width: 100%; } }
+        @keyframes blink-caret { from, to { border-color: transparent; } 50% { border-color: var(--terminal-green); } }
+        
         .prompt-line {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
             margin-bottom: 16px;
             font-family: monospace;
-            font-size: 0.8rem;
+            font-size: 0.85rem;
         }
-        .prompt-sign {
-            color: var(--terminal-green);
-            font-weight: bold;
-        }
-        .prompt-path {
-            color: var(--terminal-blue);
-        }
+        .prompt-sign { color: var(--terminal-green); font-weight: bold; text-shadow: 0 0 3px var(--terminal-glow); }
+        .prompt-path { color: var(--terminal-blue); }
         .prompt-cursor {
             width: 10px;
-            height: 16px;
-            background: var(--terminal-text);
+            height: 18px;
+            background: var(--terminal-green);
             animation: blink 1s infinite;
+            box-shadow: 0 0 5px var(--terminal-green);
         }
         
-        /* Terminal Command Output */
-        .terminal-output {
-            font-family: monospace;
-            font-size: 0.8rem;
-            margin-bottom: 16px;
-            padding: 12px;
-            background: rgba(0, 0, 0, 0.3);
-            border-left: 2px solid var(--terminal-green);
-        }
-        
-        /* Stats Cards - Terminal Style */
+        /* Stats Cards - Rounded, Soft */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 16px;
-            margin-bottom: 24px;
+            gap: 20px;
+            margin-bottom: 28px;
         }
         @media (max-width: 768px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
         
         .stat-card {
-            background: var(--terminal-bg-light);
-            border: 1px solid var(--terminal-border);
-            border-radius: 8px;
-            padding: 16px;
-            transition: all 0.2s;
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius-md);
+            padding: 20px;
+            transition: var(--transition);
             cursor: pointer;
             position: relative;
             overflow: hidden;
         }
         .stat-card::before {
-            content: '>';
+            content: '';
             position: absolute;
-            top: 8px;
-            left: 8px;
-            color: var(--terminal-green);
-            font-family: monospace;
-            font-size: 0.7rem;
-            opacity: 0.5;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(46, 204, 113, 0.1), transparent);
+            transition: left 0.5s;
         }
+        .stat-card:hover::before { left: 100%; }
         .stat-card:hover {
+            transform: translateY(-4px);
             border-color: var(--terminal-green);
-            box-shadow: var(--glow-green);
-            transform: translateY(-2px);
+            box-shadow: var(--shadow-glow);
         }
         .stat-label {
             font-size: 0.7rem;
@@ -200,45 +229,55 @@
             margin-bottom: 8px;
             font-family: monospace;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 2px;
         }
         .stat-value {
             font-size: 2rem;
             font-weight: 700;
-            color: var(--terminal-green);
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
             font-family: monospace;
         }
         
         /* Two Columns */
-        .two-columns { display: grid; grid-template-columns: 1fr 1.2fr; gap: 24px; }
+        .two-columns { display: grid; grid-template-columns: 1fr 1.2fr; gap: 28px; }
         @media (max-width: 900px) { .two-columns { grid-template-columns: 1fr; } }
         
-        /* Terminal Card */
-        .terminal-card {
-            background: var(--terminal-bg-light);
-            border: 1px solid var(--terminal-border);
-            border-radius: 12px;
+        /* Glassmorphism Card */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius-xl);
             overflow: hidden;
+            transition: var(--transition);
         }
-        .terminal-card-header {
-            background: var(--terminal-header);
-            padding: 12px 16px;
-            border-bottom: 1px solid var(--terminal-border);
+        .glass-card:hover {
+            border-color: var(--terminal-green);
+            box-shadow: var(--shadow-glow);
+            transform: translateY(-2px);
+        }
+        .glass-card-header {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--glass-border);
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
             font-family: monospace;
-            font-size: 0.75rem;
+            font-size: 0.8rem;
         }
-        .terminal-card-header i { color: var(--terminal-green); }
-        .terminal-card-body { padding: 20px; }
+        .glass-card-header i { color: var(--terminal-green); }
+        .glass-card-body { padding: 24px; }
         
-        /* Form Inputs - Terminal Style */
-        .input-group { margin-bottom: 18px; }
+        /* Form Inputs - Soft Rounded */
+        .input-group { margin-bottom: 20px; }
         .input-label {
             font-size: 0.7rem;
             color: var(--terminal-text-dim);
-            margin-bottom: 6px;
+            margin-bottom: 8px;
             display: block;
             font-family: monospace;
         }
@@ -246,51 +285,76 @@
         .input-field {
             width: 100%;
             background: rgba(0, 0, 0, 0.4);
-            border: 1px solid var(--terminal-border);
-            border-radius: 6px;
-            padding: 10px 14px;
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius-sm);
+            padding: 12px 16px;
             color: var(--terminal-text);
             font-size: 0.85rem;
             font-family: monospace;
-            transition: all 0.2s;
+            transition: var(--transition);
         }
         .input-field:focus {
             outline: none;
             border-color: var(--terminal-green);
-            box-shadow: var(--glow-green);
+            box-shadow: 0 0 15px var(--terminal-glow);
+            transform: scale(1.01);
         }
-        .input-field.error { border-color: var(--terminal-red); box-shadow: var(--glow-red); }
         
         .input-row { display: flex; gap: 12px; align-items: flex-end; }
         .input-row .input-group { flex: 1; margin-bottom: 0; }
         
         .random-btn {
             background: rgba(46, 204, 113, 0.1);
-            border: 1px solid var(--terminal-border);
-            border-radius: 6px;
-            padding: 10px 16px;
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius-sm);
+            padding: 12px 18px;
             color: var(--terminal-green);
             cursor: pointer;
             font-size: 0.75rem;
             font-family: monospace;
-            transition: all 0.2s;
+            transition: var(--transition);
             display: flex;
             align-items: center;
             gap: 6px;
         }
-        .random-btn:hover { background: rgba(46, 204, 113, 0.2); border-color: var(--terminal-green); }
+        .random-btn:hover { background: rgba(46, 204, 113, 0.2); border-color: var(--terminal-green); transform: translateY(-2px); }
+        
+        /* Progress Bar - Terminal Style */
+        .progress-container { margin-top: 20px; display: none; }
+        .progress-steps { display: flex; justify-content: space-between; margin-bottom: 12px; gap: 8px; }
+        .progress-step {
+            flex: 1;
+            text-align: center;
+            font-size: 0.6rem;
+            opacity: 0.4;
+            padding: 6px;
+            border-radius: var(--border-radius-sm);
+            font-family: monospace;
+            transition: var(--transition);
+        }
+        .progress-step.active { opacity: 1; color: var(--terminal-green); background: rgba(46, 204, 113, 0.1); text-shadow: 0 0 3px var(--terminal-glow); }
+        .progress-step.completed { opacity: 1; color: var(--terminal-green); }
+        .progress-bar { background: rgba(0, 0, 0, 0.4); border-radius: 20px; height: 6px; overflow: hidden; }
+        .progress-fill {
+            background: var(--gradient-1);
+            width: 0%;
+            height: 100%;
+            transition: width 0.4s ease;
+            box-shadow: var(--shadow-glow);
+        }
+        .progress-text { font-size: 0.65rem; text-align: center; margin-top: 8px; color: var(--terminal-text-dim); font-family: monospace; }
         
         /* Terminal Button */
         .terminal-btn {
-            padding: 12px 20px;
-            border-radius: 6px;
+            padding: 14px 24px;
+            border-radius: var(--border-radius-md);
             font-weight: 600;
             font-size: 0.85rem;
             cursor: pointer;
             border: 1px solid var(--terminal-green);
             width: 100%;
-            margin-top: 12px;
-            transition: all 0.2s;
+            margin-top: 16px;
+            transition: var(--transition);
             background: transparent;
             color: var(--terminal-green);
             font-family: monospace;
@@ -298,86 +362,76 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
+            position: relative;
+            overflow: hidden;
         }
+        .terminal-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(46, 204, 113, 0.2), transparent);
+            transition: left 0.5s;
+        }
+        .terminal-btn:hover::before { left: 100%; }
         .terminal-btn:hover {
-            background: rgba(46, 204, 113, 0.15);
-            box-shadow: var(--glow-green);
-            transform: translateY(-1px);
+            background: rgba(46, 204, 113, 0.1);
+            box-shadow: var(--shadow-glow);
+            transform: translateY(-2px);
         }
-        .terminal-btn:disabled { opacity: 0.5; cursor: not-allowed; }
         
         /* Quick Actions */
-        .quick-actions { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+        .quick-actions { display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap; }
         .quick-btn {
             flex: 1;
             background: rgba(0, 0, 0, 0.3);
-            border: 1px solid var(--terminal-border);
-            border-radius: 6px;
-            padding: 8px;
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius-sm);
+            padding: 10px;
             font-size: 0.7rem;
             cursor: pointer;
             font-family: monospace;
             text-align: center;
-            transition: all 0.2s;
+            transition: var(--transition);
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 6px;
         }
-        .quick-btn:hover { background: rgba(46, 204, 113, 0.1); border-color: var(--terminal-green); }
-        
-        /* Progress Bar */
-        .progress-container { margin-top: 20px; display: none; }
-        .progress-steps { display: flex; justify-content: space-between; margin-bottom: 10px; gap: 6px; }
-        .progress-step {
-            flex: 1;
-            text-align: center;
-            font-size: 0.55rem;
-            opacity: 0.4;
-            padding: 4px;
-            border-radius: 4px;
-            font-family: monospace;
-            transition: all 0.2s;
-        }
-        .progress-step.active { opacity: 1; color: var(--terminal-green); background: rgba(46, 204, 113, 0.1); }
-        .progress-step.completed { opacity: 1; color: var(--terminal-green); }
-        .progress-bar { background: rgba(0, 0, 0, 0.4); border-radius: 4px; height: 4px; overflow: hidden; }
-        .progress-fill {
-            background: var(--terminal-green);
-            width: 0%;
-            height: 100%;
-            transition: width 0.3s;
-            box-shadow: var(--glow-green);
-        }
-        .progress-text { font-size: 0.65rem; text-align: center; margin-top: 8px; color: var(--terminal-text-dim); font-family: monospace; }
+        .quick-btn:hover { background: rgba(46, 204, 113, 0.1); border-color: var(--terminal-green); transform: translateY(-2px); }
         
         /* VM Controls */
-        .vm-controls { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        .vm-controls { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
         .vm-search {
             flex: 1;
             background: rgba(0, 0, 0, 0.3);
-            border: 1px solid var(--terminal-border);
-            border-radius: 6px;
-            padding: 8px 12px;
+            border: 1px solid var(--glass-border);
+            border-radius: 30px;
+            padding: 10px 16px;
             color: var(--terminal-text);
             font-size: 0.8rem;
             font-family: monospace;
+            transition: var(--transition);
         }
-        .vm-search:focus { outline: none; border-color: var(--terminal-green); }
+        .vm-search:focus { outline: none; border-color: var(--terminal-green); box-shadow: var(--shadow-glow); }
         .vm-filter, .vm-sort {
             background: rgba(0, 0, 0, 0.3);
-            border: 1px solid var(--terminal-border);
-            border-radius: 6px;
-            padding: 8px 12px;
+            border: 1px solid var(--glass-border);
+            border-radius: 30px;
+            padding: 10px 16px;
             color: var(--terminal-text);
             font-size: 0.7rem;
             font-family: monospace;
             cursor: pointer;
+            transition: var(--transition);
         }
+        .vm-filter:hover, .vm-sort:hover { border-color: var(--terminal-green); }
         .vm-count {
             background: rgba(46, 204, 113, 0.1);
-            border-radius: 6px;
-            padding: 8px 12px;
+            border-radius: 30px;
+            padding: 10px 16px;
             font-size: 0.7rem;
             font-family: monospace;
             display: flex;
@@ -387,84 +441,92 @@
         }
         
         /* VM List */
-        .vm-list { display: flex; flex-direction: column; gap: 12px; max-height: 550px; overflow-y: auto; }
+        .vm-list { display: flex; flex-direction: column; gap: 14px; max-height: 550px; overflow-y: auto; padding-right: 6px; }
         .vm-list::-webkit-scrollbar { width: 6px; }
-        .vm-list::-webkit-scrollbar-track { background: var(--terminal-border); border-radius: 4px; }
-        .vm-list::-webkit-scrollbar-thumb { background: var(--terminal-green); border-radius: 4px; }
+        .vm-list::-webkit-scrollbar-track { background: var(--glass-border); border-radius: 10px; }
+        .vm-list::-webkit-scrollbar-thumb { background: var(--terminal-green); border-radius: 10px; }
         
-        /* VM Item - Terminal Style */
+        /* VM Item - Rounded, Soft, Pulse Effect */
         .vm-item {
             background: rgba(0, 0, 0, 0.3);
-            border: 1px solid var(--terminal-border);
-            border-radius: 8px;
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius-md);
             overflow: hidden;
-            transition: all 0.2s;
+            transition: var(--transition);
+            animation: slideIn 0.3s ease;
         }
-        .vm-item:hover { border-color: var(--terminal-green); transform: translateX(4px); }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .vm-item:hover { border-color: var(--terminal-green); transform: translateX(6px); background: rgba(46, 204, 113, 0.05); }
         .vm-item.creating-pulse { animation: pulseBorder 1.5s infinite; }
-        @keyframes pulseBorder { 0%, 100% { border-color: var(--terminal-border); } 50% { border-color: var(--terminal-yellow); } }
+        @keyframes pulseBorder { 0%, 100% { border-color: var(--glass-border); } 50% { border-color: var(--terminal-green); box-shadow: 0 0 15px var(--terminal-glow); } }
         
         .vm-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 12px 16px;
+            padding: 14px 18px;
             cursor: pointer;
             font-family: monospace;
         }
-        .vm-info { display: flex; align-items: center; gap: 12px; }
+        .vm-info { display: flex; align-items: center; gap: 14px; }
         .vm-icon {
-            width: 36px;
-            height: 36px;
+            width: 42px;
+            height: 42px;
             background: rgba(46, 204, 113, 0.1);
-            border-radius: 6px;
+            border-radius: var(--border-radius-md);
             display: flex;
             align-items: center;
             justify-content: center;
             border: 1px solid var(--terminal-green);
+            transition: var(--transition);
         }
-        .vm-name { font-weight: 600; font-size: 0.85rem; }
-        .vm-time { font-size: 0.55rem; color: var(--terminal-text-dim); margin-top: 3px; font-family: monospace; }
+        .vm-item:hover .vm-icon { transform: scale(1.05) rotate(3deg); box-shadow: var(--shadow-glow); }
+        .vm-name { font-weight: 600; font-size: 0.9rem; }
+        .vm-time { font-size: 0.6rem; color: var(--terminal-text-dim); margin-top: 4px; font-family: monospace; }
         .vm-status {
-            font-size: 0.6rem;
-            padding: 3px 8px;
-            border-radius: 4px;
+            font-size: 0.65rem;
+            padding: 4px 12px;
+            border-radius: 30px;
             font-family: monospace;
+            font-weight: 500;
         }
-        .status-creating { background: rgba(241, 196, 15, 0.2); color: var(--terminal-yellow); }
+        .status-creating { background: rgba(241, 196, 15, 0.2); color: var(--terminal-yellow); animation: blink 1.5s infinite; }
         .status-running { background: rgba(46, 204, 113, 0.2); color: var(--terminal-green); }
-        .vm-expand-icon { transition: transform 0.2s; color: var(--terminal-text-dim); }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+        .vm-expand-icon { transition: transform 0.3s ease; color: var(--terminal-text-dim); }
         .vm-item.open .vm-expand-icon { transform: rotate(180deg); }
         
         .vm-detail {
             max-height: 0;
             overflow: hidden;
-            transition: max-height 0.3s ease;
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             border-top: 1px solid transparent;
         }
         .vm-item.open .vm-detail {
-            max-height: 600px;
-            border-top-color: var(--terminal-border);
-            padding: 16px;
+            max-height: 650px;
+            border-top-color: var(--glass-border);
+            padding: 18px;
         }
         
         /* Info Grid */
-        .info-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 12px; }
+        .info-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 14px; }
         @media (max-width: 900px) { .info-grid { grid-template-columns: repeat(2, 1fr); } }
         @media (max-width: 640px) { .info-grid { grid-template-columns: 1fr; } }
         
         .info-box {
             background: rgba(0, 0, 0, 0.3);
-            border-radius: 6px;
-            padding: 10px;
+            border-radius: var(--border-radius-md);
+            padding: 12px;
             border-left: 2px solid var(--terminal-green);
+            transition: var(--transition);
         }
+        .info-box:hover { transform: translateX(4px); background: rgba(0, 0, 0, 0.4); }
         .info-title {
-            font-size: 0.6rem;
+            font-size: 0.65rem;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 1.5px;
             color: var(--terminal-green);
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             display: flex;
             align-items: center;
             gap: 6px;
@@ -478,32 +540,31 @@
             align-items: center;
             flex-wrap: wrap;
             gap: 6px;
-            word-break: break-all;
         }
         
         .copy-btn {
             background: rgba(46, 204, 113, 0.15);
             border: none;
             color: var(--terminal-green);
-            padding: 3px 8px;
-            border-radius: 4px;
-            font-size: 0.6rem;
+            padding: 4px 10px;
+            border-radius: var(--border-radius-sm);
+            font-size: 0.65rem;
             cursor: pointer;
             font-family: monospace;
-            transition: all 0.2s;
+            transition: var(--transition);
         }
-        .copy-btn:hover { background: rgba(46, 204, 113, 0.3); }
+        .copy-btn:hover { background: rgba(46, 204, 113, 0.3); transform: scale(1.02); }
         .copy-btn.copied { background: var(--terminal-green); color: var(--terminal-bg); }
         
         /* Action Buttons */
-        .action-buttons { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+        .action-buttons { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 14px; }
         .action-btn {
             flex: 1;
             background: rgba(0, 0, 0, 0.3);
-            border: 1px solid var(--terminal-border);
-            border-radius: 6px;
-            padding: 6px 10px;
-            font-size: 0.65rem;
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius-sm);
+            padding: 8px 12px;
+            font-size: 0.7rem;
             cursor: pointer;
             text-decoration: none;
             color: var(--terminal-text);
@@ -512,20 +573,19 @@
             align-items: center;
             justify-content: center;
             gap: 6px;
-            transition: all 0.2s;
+            transition: var(--transition);
         }
-        .action-btn:hover { border-color: var(--terminal-green); transform: translateY(-1px); }
+        .action-btn:hover { border-color: var(--terminal-green); transform: translateY(-2px); }
         .action-btn.delete:hover { border-color: var(--terminal-red); color: var(--terminal-red); }
-        .action-btn.github:hover { border-color: var(--terminal-purple); }
+        .action-btn.github:hover { border-color: var(--terminal-purple); color: var(--terminal-purple); }
         
-        /* VM Config */
         .vm-config {
             display: flex;
             gap: 12px;
-            margin-top: 10px;
-            padding: 6px 10px;
+            margin-top: 12px;
+            padding: 8px 12px;
             background: rgba(0, 0, 0, 0.2);
-            border-radius: 6px;
+            border-radius: var(--border-radius-sm);
             font-size: 0.6rem;
             color: var(--terminal-text-dim);
             flex-wrap: wrap;
@@ -538,27 +598,131 @@
             font-weight: 600;
             color: var(--terminal-yellow);
             background: rgba(241, 196, 15, 0.1);
-            padding: 3px 8px;
-            border-radius: 4px;
+            padding: 4px 10px;
+            border-radius: var(--border-radius-sm);
         }
         
         /* Pagination */
-        .pagination { display: flex; justify-content: center; gap: 8px; margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--terminal-border); }
+        .pagination { display: flex; justify-content: center; gap: 10px; margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--glass-border); }
         .page-btn {
             background: rgba(0, 0, 0, 0.3);
-            border: 1px solid var(--terminal-border);
-            border-radius: 4px;
-            padding: 4px 10px;
-            font-size: 0.65rem;
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius-sm);
+            padding: 6px 14px;
+            font-size: 0.7rem;
             cursor: pointer;
             font-family: monospace;
+            transition: var(--transition);
         }
-        .page-btn:hover { border-color: var(--terminal-green); }
+        .page-btn:hover { border-color: var(--terminal-green); transform: translateY(-2px); }
         .page-btn.active { background: var(--terminal-green); color: var(--terminal-bg); border-color: var(--terminal-green); }
         
         /* ============================================ */
-        /* DYNAMIC ISLAND NOTIFICATION */
+        /* FAKE TERMINAL MODAL */
         /* ============================================ */
+        .fake-terminal-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 1002;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            visibility: hidden;
+            opacity: 0;
+            transition: var(--transition);
+        }
+        .fake-terminal-modal.open { visibility: visible; opacity: 1; }
+        .fake-terminal-content {
+            width: 600px;
+            max-width: 90%;
+            background: var(--terminal-bg-light);
+            border: 1px solid var(--terminal-green);
+            border-radius: var(--border-radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-glow-strong);
+            animation: modalZoomIn 0.3s ease;
+        }
+        @keyframes modalZoomIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .fake-terminal-header {
+            background: var(--terminal-header);
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid var(--glass-border);
+        }
+        .fake-terminal-title {
+            flex: 1;
+            text-align: center;
+            font-family: monospace;
+            font-size: 0.8rem;
+            color: var(--terminal-green);
+        }
+        .fake-terminal-close {
+            background: none;
+            border: none;
+            color: var(--terminal-text-dim);
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .fake-terminal-close:hover { color: var(--terminal-red); transform: rotate(90deg); }
+        .fake-terminal-body {
+            padding: 20px;
+            font-family: monospace;
+            font-size: 0.8rem;
+        }
+        .fake-terminal-output {
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: var(--border-radius-sm);
+            padding: 12px;
+            margin-bottom: 16px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .fake-terminal-line {
+            padding: 4px 0;
+            color: var(--terminal-text);
+            border-bottom: 1px solid var(--glass-border);
+            font-family: monospace;
+            font-size: 0.7rem;
+        }
+        .fake-terminal-input-line {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 12px;
+        }
+        .fake-terminal-prompt {
+            color: var(--terminal-green);
+            font-weight: bold;
+        }
+        .fake-terminal-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--terminal-text);
+            font-family: monospace;
+            font-size: 0.8rem;
+            outline: none;
+        }
+        .fake-terminal-input:focus { border-bottom: 1px solid var(--terminal-green); }
+        .fake-terminal-help {
+            margin-top: 16px;
+            padding: 10px;
+            background: rgba(46, 204, 113, 0.1);
+            border-radius: var(--border-radius-sm);
+            font-size: 0.65rem;
+            color: var(--terminal-text-dim);
+        }
+        .fake-terminal-help span { color: var(--terminal-green); }
+        
+        /* Dynamic Island */
         .dynamic-island {
             position: fixed;
             top: 20px;
@@ -575,65 +739,88 @@
             opacity: 0;
             visibility: hidden;
             transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            border: 1px solid rgba(46, 204, 113, 0.3);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            font-family: monospace;
+            border: 1px solid var(--terminal-green);
+            box-shadow: var(--shadow-glow);
         }
         .dynamic-island.show {
             opacity: 1;
             visibility: visible;
             transform: translateX(-50%) scale(1);
         }
-        .dynamic-island-icon {
-            width: 28px;
-            height: 28px;
-            background: rgba(46, 204, 113, 0.2);
-            border-radius: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.8rem;
-        }
-        .dynamic-island-content {
-            display: flex;
-            flex-direction: column;
-        }
-        .dynamic-island-title {
-            font-size: 0.7rem;
-            font-weight: 600;
-            color: var(--terminal-green);
-        }
-        .dynamic-island-message {
-            font-size: 0.6rem;
-            color: var(--terminal-text-dim);
-        }
-        .dynamic-island-progress {
-            width: 100px;
-            height: 3px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 3px;
-            overflow: hidden;
-            margin-top: 4px;
-        }
-        .dynamic-island-progress-fill {
-            width: 0%;
-            height: 100%;
-            background: var(--terminal-green);
-            transition: width 0.3s;
-        }
         
-        /* Footer */
-        .footer { text-align: center; padding: 20px; margin-top: 24px; border-top: 1px solid var(--terminal-border); color: var(--terminal-text-dim); font-size: 0.6rem; font-family: monospace; }
+        /* Debug Panel */
+        .debug-panel {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 400px;
+            max-width: calc(100% - 40px);
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius-lg);
+            z-index: 100;
+            transition: var(--transition);
+            transform: translateY(calc(100% - 50px));
+        }
+        .debug-panel.open { transform: translateY(0); }
+        .debug-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background: rgba(0, 0, 0, 0.3);
+            border-bottom: 1px solid var(--glass-border);
+            cursor: pointer;
+            border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
+        }
+        .debug-title { font-family: monospace; font-size: 0.75rem; color: var(--terminal-green); }
+        .debug-controls { display: flex; gap: 10px; }
+        .debug-clear, .debug-filter-btn {
+            background: none;
+            border: none;
+            color: var(--terminal-text-dim);
+            cursor: pointer;
+            font-size: 0.7rem;
+            transition: var(--transition);
+        }
+        .debug-clear:hover { color: var(--terminal-red); }
+        .debug-filter-btn:hover { color: var(--terminal-green); }
+        .debug-toggle { cursor: pointer; transition: transform 0.3s; }
+        .debug-panel.open .debug-toggle { transform: rotate(180deg); }
+        .debug-content {
+            padding: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 0.7rem;
+        }
+        .debug-log {
+            padding: 6px 0;
+            border-bottom: 1px solid var(--glass-border);
+            display: flex;
+            gap: 10px;
+            animation: fadeIn 0.2s ease;
+        }
+        .debug-time { color: var(--terminal-text-dim); min-width: 70px; }
+        .debug-success { color: var(--terminal-green); }
+        .debug-error { color: var(--terminal-red); }
+        .debug-info { color: var(--terminal-blue); }
+        .debug-warning { color: var(--terminal-yellow); }
+        
+        .footer { text-align: center; padding: 20px; margin-top: 24px; border-top: 1px solid var(--glass-border); color: var(--terminal-text-dim); font-size: 0.6rem; font-family: monospace; }
         
         @media (max-width: 640px) {
             .container { padding: 12px; }
-            .terminal-card-body { padding: 16px; }
-            .info-grid { grid-template-columns: 1fr; }
-            .dynamic-island { width: 90%; padding: 8px 16px; }
+            .glass-card-body { padding: 16px; }
+            .debug-panel { width: calc(100% - 40px); right: 20px; }
         }
     </style>
 </head>
 <body>
+    <div class="animated-bg"></div>
+    <div class="crt-effect"></div>
+    
     <div class="container">
         <!-- Terminal Header -->
         <div class="terminal-header">
@@ -643,7 +830,7 @@
                 <div class="terminal-dot green"></div>
             </div>
             <div class="terminal-title">
-                <i class="fas fa-terminal"></i> singularity@club:~/vps
+                <i class="fas fa-terminal"></i> singularity@quantum:~/vps
             </div>
             <div></div>
         </div>
@@ -654,13 +841,14 @@
                 <span class="prompt-path">~/vpspremiumgenerator</span>
                 <span class="prompt-cursor"></span>
             </div>
-            <div class="terminal-output">
-                <span style="color: var(--terminal-green);">[INFO]</span> Singularity Club Terminal v2.0 initialized<br>
-                <span style="color: var(--terminal-green);">[INFO]</span> System ready. Type 'help' for commands.
+            <div class="terminal-output typing-text">
+                <span style="color: var(--terminal-green);">[QUANTUM@SINGULARITY]$</span> System initialized.<br>
+                <span style="color: var(--terminal-green);">[INFO]</span> Terminal mode v3.0 activated.<br>
+                <span style="color: var(--terminal-green);">[INFO]</span> Type <span style="color: var(--terminal-yellow);">'help'</span> for available commands.
             </div>
         </div>
 
-        <!-- Stats - Terminal Style -->
+        <!-- Stats -->
         <div class="stats-grid">
             <div class="stat-card" onclick="refreshList()">
                 <div class="stat-label">TOTAL VMS</div>
@@ -682,11 +870,12 @@
 
         <div class="two-columns">
             <!-- Form tạo VM -->
-            <div class="terminal-card">
-                <div class="terminal-card-header">
+            <div class="glass-card">
+                <div class="glass-card-header">
                     <i class="fas fa-plus-circle"></i> <span>vm create --new</span>
+                    <button class="fake-terminal-btn" id="openTerminalBtn" style="margin-left:auto; background:none; border:none; color:var(--terminal-green); cursor:pointer;"><i class="fas fa-terminal"></i> terminal</button>
                 </div>
-                <div class="terminal-card-body">
+                <div class="glass-card-body">
                     <div class="input-group">
                         <label class="input-label"><i class="fab fa-github"></i> GITHUB_TOKEN</label>
                         <input type="password" class="input-field" id="githubToken" placeholder="ghp_xxxxxxxxxxxx">
@@ -710,7 +899,6 @@
                         <button class="random-btn" id="randomPassBtn"><i class="fas fa-dice"></i> rand</button>
                     </div>
                     
-                    <!-- Progress Bar -->
                     <div class="progress-container" id="createProgressContainer">
                         <div class="progress-steps" id="createProgressSteps">
                             <div class="progress-step">token</div>
@@ -736,12 +924,12 @@
             </div>
 
             <!-- Danh sách VM -->
-            <div class="terminal-card">
-                <div class="terminal-card-header">
+            <div class="glass-card">
+                <div class="glass-card-header">
                     <i class="fas fa-server"></i> <span>vm list --all</span>
-                    <button class="refresh-vm-btn" id="manualRefreshBtn" style="background:none; border:none; color:var(--terminal-green); cursor:pointer; margin-left:auto;"><i class="fas fa-sync-alt"></i></button>
+                    <button class="refresh-vm-btn" id="manualRefreshBtn" style="margin-left:auto; background:none; border:none; color:var(--terminal-green); cursor:pointer;"><i class="fas fa-sync-alt"></i></button>
                 </div>
-                <div class="terminal-card-body">
+                <div class="glass-card-body">
                     <div class="vm-controls">
                         <input type="text" class="vm-search" id="searchInput" placeholder="grep...">
                         <select class="vm-filter" id="filterSelect">
@@ -756,8 +944,8 @@
                         <div class="vm-count"><i class="fas fa-hashtag"></i> <span id="vmCount">0</span></div>
                     </div>
                     <div class="vm-list" id="vmList">
-                        <div class="empty-state" style="text-align:center; padding:40px; color:var(--terminal-text-dim);">
-                            <i class="fas fa-terminal" style="font-size:2rem; margin-bottom:10px; opacity:0.5;"></i><br>
+                        <div class="empty-state" style="text-align:center; padding:50px; color:var(--terminal-text-dim);">
+                            <i class="fas fa-terminal" style="font-size:2.5rem; margin-bottom:12px; opacity:0.5;"></i><br>
                             $ vm list<br>
                             No virtual machines found.<br>
                             Type: <span style="color:var(--terminal-green);">vm create --help</span>
@@ -769,78 +957,63 @@
         </div>
         
         <div class="footer">
-            <span style="color: var(--terminal-green);">$</span> singularity@club:~/vps$ <span style="color: var(--terminal-text-dim);">-- version 2.0 -- terminal mode --</span>
+            <span style="color: var(--terminal-green);">$</span> singularity@quantum:~/vps$ <span style="color: var(--terminal-text-dim);">-- quantum terminal v3.0 --</span>
         </div>
     </div>
     
-    <!-- Dynamic Island Notification -->
+    <!-- Dynamic Island -->
     <div class="dynamic-island" id="dynamicIsland">
-        <div class="dynamic-island-icon">
-            <i class="fas fa-terminal"></i>
+        <i class="fas fa-terminal" style="color: var(--terminal-green);"></i>
+        <span id="islandMsg">System ready</span>
+    </div>
+    
+    <!-- Debug Panel -->
+    <div class="debug-panel" id="debugPanel">
+        <div class="debug-header" id="debugHeader">
+            <div class="debug-title"><i class="fas fa-terminal"></i> quantum-debug@console:~$</div>
+            <div class="debug-controls">
+                <button class="debug-filter-btn" id="debugFilterBtn"><i class="fas fa-filter"></i></button>
+                <button class="debug-clear" id="debugClearBtn"><i class="fas fa-trash-alt"></i></button>
+                <span class="debug-toggle" id="debugToggle">▼</span>
+            </div>
         </div>
-        <div class="dynamic-island-content">
-            <div class="dynamic-island-title" id="islandTitle">System</div>
-            <div class="dynamic-island-message" id="islandMessage">Ready</div>
-            <div class="dynamic-island-progress" id="islandProgress">
-                <div class="dynamic-island-progress-fill" id="islandProgressFill"></div>
+        <div class="debug-content" id="debugContent">
+            <div class="debug-log"><span class="debug-time">--:--:--</span><span class="debug-info">🚀 Quantum Terminal v3.0 initialized</span></div>
+            <div class="debug-log"><span class="debug-time">--:--:--</span><span class="debug-info">📡 API endpoint: /api/vps</span></div>
+        </div>
+    </div>
+    
+    <!-- Fake Terminal Modal -->
+    <div class="fake-terminal-modal" id="fakeTerminalModal">
+        <div class="fake-terminal-content">
+            <div class="fake-terminal-header">
+                <i class="fas fa-terminal" style="color: var(--terminal-green);"></i>
+                <div class="fake-terminal-title">quantum@terminal:~$</div>
+                <button class="fake-terminal-close" id="closeTerminalBtn">&times;</button>
+            </div>
+            <div class="fake-terminal-body">
+                <div class="fake-terminal-output" id="terminalOutput">
+                    <div class="fake-terminal-line">Quantum Terminal v1.0 ready.</div>
+                    <div class="fake-terminal-line">Type 'help' for available commands.</div>
+                </div>
+                <div class="fake-terminal-input-line">
+                    <span class="fake-terminal-prompt">$</span>
+                    <input type="text" class="fake-terminal-input" id="terminalCommand" placeholder="type command..." autofocus>
+                </div>
+                <div class="fake-terminal-help">
+                    <span>Available commands:</span> help | ls | refresh | create &lt;name&gt; | delete &lt;id&gt; | clear | exit
+                </div>
             </div>
         </div>
     </div>
 
     <script>
         // ============================================ //
-        // DYNAMIC ISLAND NOTIFICATION
-        // ============================================ //
-        function showDynamicIsland(title, message, type = 'info', duration = 3000, progress = null) {
-            const island = document.getElementById('dynamicIsland');
-            const islandTitle = document.getElementById('islandTitle');
-            const islandMessage = document.getElementById('islandMessage');
-            const islandProgressFill = document.getElementById('islandProgressFill');
-            const islandProgress = document.getElementById('islandProgress');
-            const islandIcon = document.querySelector('.dynamic-island-icon i');
-            
-            islandTitle.textContent = title;
-            islandMessage.textContent = message;
-            
-            if (progress !== null && progress >= 0 && progress <= 100) {
-                islandProgress.style.display = 'block';
-                islandProgressFill.style.width = progress + '%';
-            } else {
-                islandProgress.style.display = 'none';
-            }
-            
-            // Set icon and color based on type
-            if (type === 'success') {
-                islandIcon.className = 'fas fa-check-circle';
-                island.style.borderColor = 'rgba(46, 204, 113, 0.5)';
-                islandTitle.style.color = '#2ecc71';
-            } else if (type === 'error') {
-                islandIcon.className = 'fas fa-exclamation-triangle';
-                island.style.borderColor = 'rgba(231, 76, 60, 0.5)';
-                islandTitle.style.color = '#e74c3c';
-            } else if (type === 'warning') {
-                islandIcon.className = 'fas fa-clock';
-                island.style.borderColor = 'rgba(241, 196, 15, 0.5)';
-                islandTitle.style.color = '#f1c40f';
-            } else {
-                islandIcon.className = 'fas fa-terminal';
-                island.style.borderColor = 'rgba(46, 204, 113, 0.3)';
-                islandTitle.style.color = '#2ecc71';
-            }
-            
-            island.classList.add('show');
-            
-            setTimeout(() => {
-                island.classList.remove('show');
-            }, duration);
-        }
-        
-        // ============================================ //
-        // CẤU HÌNH
+        // CONFIG
         // ============================================ //
         const API_URL = '/api/vps';
-        const STORAGE_KEY = 'singularity_vms_terminal';
-        const CONFIG_KEY = 'singularity_config_terminal';
+        const STORAGE_KEY = 'singularity_vms_quantum';
+        const CONFIG_KEY = 'singularity_config_quantum';
         
         let vms = [];
         let currentFilter = 'all';
@@ -852,6 +1025,7 @@
         let currentPage = 1;
         let passwordVisible = {};
         let autoRefreshInterval = null;
+        let currentDebugFilter = 'all';
         const ITEMS_PER_PAGE = 4;
         
         // DOM Elements
@@ -874,21 +1048,38 @@
             createProgressFill: document.getElementById('createProgressFill'),
             createProgressText: document.getElementById('createProgressText'),
             createProgressSteps: document.getElementById('createProgressSteps'),
-            pagination: document.getElementById('pagination')
+            pagination: document.getElementById('pagination'),
+            debugContent: document.getElementById('debugContent')
         };
+        
+        // ============================================ //
+        // DEBUG LOG
+        // ============================================ //
+        function addDebugLog(msg, type = 'info') {
+            const time = new Date().toLocaleTimeString();
+            if (currentDebugFilter !== 'all' && currentDebugFilter !== type) return;
+            const div = document.createElement('div');
+            div.className = 'debug-log';
+            div.innerHTML = `<span class="debug-time">${time}</span><span class="debug-${type}">${msg}</span>`;
+            elements.debugContent.insertBefore(div, elements.debugContent.firstChild);
+            if (elements.debugContent.children.length > 100) {
+                elements.debugContent.removeChild(elements.debugContent.lastChild);
+            }
+        }
+        
+        function showIsland(msg, type = 'info') {
+            const island = document.getElementById('dynamicIsland');
+            const islandMsg = document.getElementById('islandMsg');
+            islandMsg.innerHTML = msg;
+            island.classList.add('show');
+            setTimeout(() => island.classList.remove('show'), 3000);
+            addDebugLog(msg, type);
+            if (type === 'success') canvasConfetti({ particleCount: 80, spread: 60, origin: { y: 0.6 }, colors: ['#2ecc71', '#1abc9c'] });
+        }
         
         // ============================================ //
         // UTILITIES
         // ============================================ //
-        function showToast(msg, type = 'success') {
-            showDynamicIsland(
-                type === 'success' ? 'SUCCESS' : type === 'error' ? 'ERROR' : type === 'warning' ? 'WARNING' : 'INFO',
-                msg,
-                type,
-                3000
-            );
-        }
-        
         function randomUsername() {
             const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
             let result = '';
@@ -952,21 +1143,11 @@
                     if (countdownIntervals[vmId]) clearInterval(countdownIntervals[vmId]);
                 } else {
                     countdownElement.innerHTML = formatCountdown(remaining);
-                    if (remaining < 5 * 60 * 1000) {
-                        countdownElement.style.color = '#e74c3c';
-                    } else if (remaining < 15 * 60 * 1000) {
-                        countdownElement.style.color = '#f1c40f';
-                    } else {
-                        countdownElement.style.color = '#2ecc71';
-                    }
                 }
             }
         }
         
-        function saveToLocal() {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(vms));
-        }
-        
+        function saveToLocal() { localStorage.setItem(STORAGE_KEY, JSON.stringify(vms)); }
         function loadFromLocal() {
             const saved = localStorage.getItem(STORAGE_KEY);
             if (saved) {
@@ -980,7 +1161,7 @@
                         if (!passwordVisible[vm.id]) passwordVisible[vm.id] = false;
                     });
                     renderVMList();
-                } catch(e) {}
+                } catch(e) { addDebugLog('Load error: ' + e.message, 'error'); }
             }
         }
         
@@ -996,128 +1177,101 @@
         }
         
         // ============================================ //
-        // COPY FUNCTION
+        // COPY
         // ============================================ //
         window.copyText = async function(text, btn) {
             try {
                 await navigator.clipboard.writeText(text);
-                const originalHTML = btn.innerHTML;
+                const original = btn.innerHTML;
                 btn.innerHTML = 'copied!';
                 btn.classList.add('copied');
-                showToast(`Copied: ${text.substring(0, 30)}${text.length > 30 ? '...' : ''}`, 'success');
-                setTimeout(() => {
-                    btn.innerHTML = originalHTML;
-                    btn.classList.remove('copied');
-                }, 1500);
-            } catch (err) {
-                showToast('Copy failed', 'error');
-            }
+                showIsland(`Copied: ${text.substring(0, 30)}`, 'success');
+                setTimeout(() => { btn.innerHTML = original; btn.classList.remove('copied'); }, 1500);
+            } catch(e) { showIsland('Copy failed', 'error'); }
         };
         
         window.togglePassword = function(vmId, btn) {
             passwordVisible[vmId] = !passwordVisible[vmId];
-            const passwordSpan = document.getElementById(`password-${vmId}`);
-            if (passwordSpan) {
+            const span = document.getElementById(`password-${vmId}`);
+            if (span) {
                 if (passwordVisible[vmId]) {
                     const vm = vms.find(v => v.id === vmId);
-                    passwordSpan.textContent = vm?.password || '';
+                    span.textContent = vm?.password || '';
                     btn.innerHTML = '<i class="fas fa-eye-slash"></i>';
                 } else {
-                    passwordSpan.textContent = '••••••••';
+                    span.textContent = '••••••••';
                     btn.innerHTML = '<i class="fas fa-eye"></i>';
                 }
             }
         };
         
         window.toggleVM = function(id) {
-            const clickedItem = document.querySelector(`.vm-item[data-id="${id}"]`);
-            if (!clickedItem) return;
+            const item = document.querySelector(`.vm-item[data-id="${id}"]`);
+            if (!item) return;
             if (currentOpenVM && currentOpenVM !== id) {
-                const prevItem = document.querySelector(`.vm-item[data-id="${currentOpenVM}"]`);
-                if (prevItem) prevItem.classList.remove('open');
+                const prev = document.querySelector(`.vm-item[data-id="${currentOpenVM}"]`);
+                if (prev) prev.classList.remove('open');
             }
-            clickedItem.classList.toggle('open');
-            currentOpenVM = clickedItem.classList.contains('open') ? id : null;
+            item.classList.toggle('open');
+            currentOpenVM = item.classList.contains('open') ? id : null;
         };
         
         // ============================================ //
-        // RENDER PAGINATION
+        // RENDER
         // ============================================ //
         function renderPagination(totalItems) {
             const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
-            if (totalPages <= 1) {
-                elements.pagination.innerHTML = '';
-                return;
-            }
-            let paginationHtml = '';
+            if (totalPages <= 1) { elements.pagination.innerHTML = ''; return; }
+            let html = '';
             for (let i = 1; i <= totalPages; i++) {
-                paginationHtml += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`;
+                html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`;
             }
-            elements.pagination.innerHTML = paginationHtml;
+            elements.pagination.innerHTML = html;
         }
         
-        window.goToPage = function(page) {
-            currentPage = page;
-            renderVMList();
-        };
+        window.goToPage = function(page) { currentPage = page; renderVMList(); };
         
-        // ============================================ //
-        // RENDER VM LIST
-        // ============================================ //
         function renderVMList() {
             let filtered = [...vms];
             const search = elements.searchInput.value.toLowerCase();
-            if (search) {
-                filtered = filtered.filter(v => (v.name || '').toLowerCase().includes(search) || (v.username || '').toLowerCase().includes(search));
-            }
-            if (currentFilter !== 'all') {
-                filtered = filtered.filter(v => v.status === currentFilter);
-            }
-            if (currentSort === 'newest') {
-                filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-            } else if (currentSort === 'expiring') {
-                filtered.sort((a, b) => (a.expiresAt || 0) - (b.expiresAt || 0));
-            }
+            if (search) filtered = filtered.filter(v => (v.name || '').toLowerCase().includes(search) || (v.username || '').toLowerCase().includes(search));
+            if (currentFilter !== 'all') filtered = filtered.filter(v => v.status === currentFilter);
+            if (currentSort === 'newest') filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            else if (currentSort === 'expiring') filtered.sort((a, b) => (a.expiresAt || 0) - (b.expiresAt || 0));
             
             elements.vmCount.textContent = filtered.length;
             updateStats();
             renderPagination(filtered.length);
             
-            const startIdx = (currentPage - 1) * ITEMS_PER_PAGE;
-            const paginatedVMs = filtered.slice(startIdx, startIdx + ITEMS_PER_PAGE);
+            const start = (currentPage - 1) * ITEMS_PER_PAGE;
+            const paginated = filtered.slice(start, start + ITEMS_PER_PAGE);
             
-            if (paginatedVMs.length === 0) {
-                elements.vmList.innerHTML = `<div class="empty-state" style="text-align:center; padding:40px; color:var(--terminal-text-dim);">
-                    <i class="fas fa-terminal" style="font-size:2rem; margin-bottom:10px; opacity:0.5;"></i><br>
-                    $ vm list<br>
-                    No virtual machines found.<br>
-                    Type: <span style="color:var(--terminal-green);">vm create --help</span>
+            if (paginated.length === 0) {
+                elements.vmList.innerHTML = `<div class="empty-state" style="text-align:center; padding:50px; color:var(--terminal-text-dim);">
+                    <i class="fas fa-terminal" style="font-size:2.5rem; margin-bottom:12px; opacity:0.5;"></i><br>
+                    $ vm list<br>No virtual machines found.
                 </div>`;
                 return;
             }
             
-            elements.vmList.innerHTML = paginatedVMs.map(vm => {
-                const createdAt = new Date(vm.createdAt);
-                const statusClass = vm.status === 'running' ? 'status-running' : 'status-creating';
-                const statusIcon = vm.status === 'running' ? 'fa-play-circle' : 'fa-spinner fa-pulse';
-                const remainingTime = vm.expiresAt ? (vm.expiresAt - Date.now()) : 0;
-                const relativeTime = formatRelativeTime(createdAt);
+            elements.vmList.innerHTML = paginated.map(vm => {
+                const created = new Date(vm.createdAt);
+                const remaining = vm.expiresAt ? (vm.expiresAt - Date.now()) : 0;
                 const isCreating = vm.status === 'creating';
-                
                 if (passwordVisible[vm.id] === undefined) passwordVisible[vm.id] = false;
                 
                 return `
                     <div class="vm-item ${isCreating ? 'creating-pulse' : ''}" data-id="${vm.id}">
                         <div class="vm-header" onclick="toggleVM('${vm.id}')">
                             <div class="vm-info">
-                                <div class="vm-icon"><i class="fas ${statusIcon}"></i></div>
+                                <div class="vm-icon"><i class="fas ${vm.status === 'running' ? 'fa-play-circle' : 'fa-spinner fa-pulse'}"></i></div>
                                 <div>
                                     <div class="vm-name">${vm.name || vm.id.substring(0, 15)}</div>
-                                    <div class="vm-time">${relativeTime}</div>
+                                    <div class="vm-time">${formatRelativeTime(created)}</div>
                                 </div>
                             </div>
                             <div style="display: flex; gap: 10px; align-items: center;">
-                                <span class="vm-status ${statusClass}">${vm.status}</span>
+                                <span class="vm-status status-${vm.status}">${vm.status}</span>
                                 <i class="fas fa-chevron-down vm-expand-icon"></i>
                             </div>
                         </div>
@@ -1125,41 +1279,32 @@
                             <div class="info-grid">
                                 <div class="info-box">
                                     <div class="info-title"><i class="fas fa-user"></i> LOGIN</div>
-                                    <div class="info-value">
-                                        <span>${vm.username}</span>
-                                        <button class="copy-btn" onclick="copyText('${vm.username.replace(/'/g, "\\'")}', this)">copy</button>
-                                    </div>
+                                    <div class="info-value"><span>${vm.username}</span><button class="copy-btn" onclick="copyText('${vm.username.replace(/'/g, "\\'")}', this)">copy</button></div>
                                     <div class="info-value" style="margin-top: 8px;">
-                                        <div class="password-wrapper" style="display:flex; justify-content:space-between; width:100%;">
-                                            <span id="password-${vm.id}">${passwordVisible[vm.id] ? vm.password : '••••••••'}</span>
-                                            <div>
-                                                <button class="copy-btn" onclick="togglePassword('${vm.id}', this)" style="margin-right:4px;"><i class="fas ${passwordVisible[vm.id] ? 'fa-eye-slash' : 'fa-eye'}"></i></button>
-                                                <button class="copy-btn" onclick="copyText('${vm.password.replace(/'/g, "\\'")}', this)">copy</button>
-                                            </div>
+                                        <span id="password-${vm.id}">${passwordVisible[vm.id] ? vm.password : '••••••••'}</span>
+                                        <div>
+                                            <button class="copy-btn" onclick="togglePassword('${vm.id}', this)" style="margin-right:4px;"><i class="fas ${passwordVisible[vm.id] ? 'fa-eye-slash' : 'fa-eye'}"></i></button>
+                                            <button class="copy-btn" onclick="copyText('${vm.password.replace(/'/g, "\\'")}', this)">copy</button>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="info-box">
                                     <div class="info-title"><i class="fas fa-clock"></i> TIME</div>
-                                    <div class="info-value">created: ${createdAt.toLocaleString()}</div>
-                                    <div class="info-value">expires: <span id="countdown-${vm.id}" class="countdown-timer">${vm.status === 'running' ? formatCountdown(remainingTime) : (vm.status === 'creating' ? 'creating...' : 'N/A')}</span></div>
+                                    <div class="info-value">created: ${created.toLocaleString()}</div>
+                                    <div class="info-value">expires: <span id="countdown-${vm.id}" class="countdown-timer">${vm.status === 'running' ? formatCountdown(remaining) : (vm.status === 'creating' ? 'creating...' : 'N/A')}</span></div>
                                 </div>
                                 <div class="info-box">
                                     <div class="info-title"><i class="fas fa-network-wired"></i> NETWORK</div>
-                                    ${vm.tailscaleIP ? `
-                                        <div class="info-value"><span>${vm.tailscaleIP}</span><button class="copy-btn" onclick="copyText('${vm.tailscaleIP}', this)">copy</button></div>
-                                        <div class="info-value"><span>noVNC</span><button class="copy-btn" onclick="copyText('${vm.novncUrl}', this)">copy URL</button></div>
-                                    ` : '<div class="info-value">configuring...</div>'}
+                                    ${vm.tailscaleIP ? `<div class="info-value"><span>${vm.tailscaleIP}</span><button class="copy-btn" onclick="copyText('${vm.tailscaleIP}', this)">copy</button></div><div class="info-value"><span>noVNC</span><button class="copy-btn" onclick="copyText('${vm.novncUrl}', this)">copy URL</button></div>` : '<div class="info-value">configuring...</div>'}
                                 </div>
                             </div>
                             <div class="vm-config">
                                 <span><i class="fas fa-microchip"></i> 4 vCore</span>
                                 <span><i class="fas fa-memory"></i> 8GB RAM</span>
                                 <span><i class="fas fa-hdd"></i> 64GB NVMe</span>
-                                <span><i class="fas fa-tachometer-alt"></i> 1TB</span>
                             </div>
                             <div class="action-buttons">
-                                ${vm.repoUrl ? `<a href="${vm.repoUrl}" target="_blank" class="action-btn github"><i class="fab fa-github"></i> repo</a>` : '<button class="action-btn github" disabled style="opacity:0.5;">repo</button>'}
+                                ${vm.repoUrl ? `<a href="${vm.repoUrl}" target="_blank" class="action-btn github"><i class="fab fa-github"></i> repo</a>` : '<button class="action-btn github" disabled>repo</button>'}
                                 ${vm.workflowUrl ? `<a href="${vm.workflowUrl}" target="_blank" class="action-btn actions"><i class="fas fa-code-branch"></i> actions</a>` : ''}
                                 ${vm.novncUrl ? `<button class="action-btn novnc" onclick="window.open('${vm.novncUrl}', '_blank')"><i class="fas fa-desktop"></i> novnc</button>` : ''}
                                 <button class="action-btn delete" onclick="deleteVM('${vm.id}')"><i class="fas fa-trash-alt"></i> delete</button>
@@ -1178,41 +1323,83 @@
             vms = vms.filter(v => v.id !== id);
             if (currentOpenVM === id) currentOpenVM = null;
             delete passwordVisible[id];
-            const startIdx = (currentPage - 1) * ITEMS_PER_PAGE;
-            if (startIdx >= vms.length && currentPage > 1) currentPage--;
+            const start = (currentPage - 1) * ITEMS_PER_PAGE;
+            if (start >= vms.length && currentPage > 1) currentPage--;
             renderVMList();
-            showToast(`VM deleted: ${vm?.name || id}`, 'warning');
+            showIsland(`Deleted: ${vm?.name || id}`, 'warning');
         };
         
-        window.refreshList = function() {
-            currentPage = 1;
-            renderVMList();
-            showToast('List refreshed', 'info');
-        };
+        window.refreshList = function() { currentPage = 1; renderVMList(); showIsland('List refreshed', 'info'); };
         
         // ============================================ //
-        // API CALLS
+        // FAKE TERMINAL COMMANDS
         // ============================================ //
-        async function loadVMs() {
-            try {
-                const res = await fetch(API_URL);
-                if (!res.ok) return;
-                const data = await res.json();
-                if (data.success && data.vms) {
-                    const newVms = data.vms;
-                    for (const newVm of newVms) {
-                        const existingIdx = vms.findIndex(v => v.id === newVm.id);
-                        if (existingIdx !== -1) {
-                            vms[existingIdx] = { ...vms[existingIdx], ...newVm };
-                        } else {
-                            vms.push(newVm);
-                            passwordVisible[newVm.id] = false;
-                        }
+        function addTerminalLine(text, type = 'output') {
+            const output = document.getElementById('terminalOutput');
+            const div = document.createElement('div');
+            div.className = 'fake-terminal-line';
+            div.innerHTML = type === 'command' ? `<span style="color: var(--terminal-green);">$</span> ${text}` : text;
+            output.appendChild(div);
+            output.scrollTop = output.scrollHeight;
+        }
+        
+        function processTerminalCommand(cmd) {
+            const parts = cmd.trim().toLowerCase().split(' ');
+            const command = parts[0];
+            const arg = parts.slice(1).join(' ');
+            
+            addTerminalLine(cmd, 'command');
+            
+            switch(command) {
+                case 'help':
+                    addTerminalLine('Available commands:');
+                    addTerminalLine('  help       - Show this help');
+                    addTerminalLine('  ls         - List all VMs');
+                    addTerminalLine('  refresh    - Refresh VM list');
+                    addTerminalLine('  create <name> - Create new VM');
+                    addTerminalLine('  delete <id> - Delete VM by ID');
+                    addTerminalLine('  clear      - Clear terminal');
+                    addTerminalLine('  exit       - Close terminal');
+                    break;
+                case 'ls':
+                    addTerminalLine(`Total VMs: ${vms.length}`);
+                    vms.forEach(vm => addTerminalLine(`  - ${vm.name} [${vm.status}]`));
+                    break;
+                case 'refresh':
+                    refreshList();
+                    addTerminalLine('VM list refreshed.');
+                    break;
+                case 'create':
+                    if (arg) {
+                        elements.vmUsername.value = arg;
+                        addTerminalLine(`Username set to: ${arg}`);
+                        addTerminalLine('Click "vm create --start" button to create VM.');
+                    } else {
+                        addTerminalLine('Usage: create &lt;username&gt;');
                     }
-                    vms = vms.filter(v => newVms.some(nv => nv.id === v.id));
-                    renderVMList();
-                }
-            } catch (e) {}
+                    break;
+                case 'delete':
+                    if (arg) {
+                        const vmToDelete = vms.find(v => v.name === arg || v.id === arg);
+                        if (vmToDelete) {
+                            deleteVM(vmToDelete.id);
+                            addTerminalLine(`Deleted VM: ${arg}`);
+                        } else {
+                            addTerminalLine(`VM not found: ${arg}`);
+                        }
+                    } else {
+                        addTerminalLine('Usage: delete &lt;vm_name_or_id&gt;');
+                    }
+                    break;
+                case 'clear':
+                    document.getElementById('terminalOutput').innerHTML = '<div class="fake-terminal-line">Quantum Terminal v1.0 ready.</div>';
+                    break;
+                case 'exit':
+                    document.getElementById('fakeTerminalModal').classList.remove('open');
+                    break;
+                default:
+                    addTerminalLine(`Command not found: ${cmd}. Type 'help' for available commands.`);
+            }
         }
         
         // ============================================ //
@@ -1224,38 +1411,32 @@
             let username = elements.vmUsername.value.trim();
             let password = elements.vmPassword.value.trim();
             
-            if (!githubToken) {
-                showToast('Missing GitHub Token', 'error');
-                return;
-            }
-            if (!tailscaleKey) {
-                showToast('Missing Tailscale Key', 'error');
-                return;
-            }
+            if (!githubToken) { showIsland('Missing GitHub Token', 'error'); return; }
+            if (!tailscaleKey) { showIsland('Missing Tailscale Key', 'error'); return; }
             if (!username) username = randomUsername();
             if (!password) password = randomPassword();
             
             elements.createProgressContainer.style.display = 'block';
             elements.createBtn.disabled = true;
             elements.createBtn.innerHTML = '<span class="spinner"></span> creating...';
-            updateCreateProgress(0, 10, 'validating token...');
+            updateCreateProgress(0, 10, 'validating...');
             setTimeout(() => updateCreateProgress(1, 30, 'creating repo...'), 800);
             setTimeout(() => updateCreateProgress(2, 55, 'creating workflow...'), 2000);
             setTimeout(() => updateCreateProgress(3, 80, 'triggering...'), 3500);
             
-            const expiresAtTime = Date.now() + 6 * 60 * 60 * 1000;
             const newVM = {
                 id: Date.now().toString(),
                 name: `vm-${Date.now()}-${Math.floor(Math.random() * 10000)}`,
-                username: username, password: password, status: 'creating',
+                username, password, status: 'creating',
                 tailscaleIP: null, novncUrl: null, repoUrl: null, workflowUrl: null,
-                createdAt: new Date().toISOString(), expiresAt: expiresAtTime
+                createdAt: new Date().toISOString(),
+                expiresAt: Date.now() + 6 * 60 * 60 * 1000
             };
             vms.unshift(newVM);
             passwordVisible[newVM.id] = false;
             renderVMList();
             totalCreations++;
-            showDynamicIsland('CREATING VM', `Initializing ${username}...`, 'info', 3000, 10);
+            showIsland(`Creating VM: ${username}...`, 'info');
             
             try {
                 const res = await fetch(API_URL, {
@@ -1265,33 +1446,31 @@
                 });
                 const data = await res.json();
                 if (data.success) {
-                    const vmIndex = vms.findIndex(v => v.id === newVM.id);
-                    if (vmIndex !== -1) {
-                        vms[vmIndex] = { ...vms[vmIndex], ...data };
-                        vms[vmIndex].status = 'running';
-                        vms[vmIndex].tailscaleIP = data.tailscaleIP;
-                        vms[vmIndex].novncUrl = data.novncUrl;
-                        vms[vmIndex].repoUrl = data.repoUrl;
-                        vms[vmIndex].workflowUrl = data.workflowUrl;
-                        vms[vmIndex].expiresAt = Date.now() + 6 * 60 * 60 * 1000;
+                    const idx = vms.findIndex(v => v.id === newVM.id);
+                    if (idx !== -1) {
+                        vms[idx] = { ...vms[idx], ...data, status: 'running' };
+                        vms[idx].tailscaleIP = data.tailscaleIP;
+                        vms[idx].novncUrl = data.novncUrl;
+                        vms[idx].repoUrl = data.repoUrl;
+                        vms[idx].workflowUrl = data.workflowUrl;
+                        vms[idx].expiresAt = Date.now() + 6 * 60 * 60 * 1000;
                         successfulCreations++;
                         renderVMList();
-                        if (countdownIntervals[vmIndex]) clearInterval(countdownIntervals[vmIndex]);
-                        countdownIntervals[vmIndex] = setInterval(() => updateCountdown(vms[vmIndex].id), 1000);
-                        showDynamicIsland('VM CREATED', `${username} is ready!`, 'success', 4000, 100);
+                        if (countdownIntervals[idx]) clearInterval(countdownIntervals[idx]);
+                        countdownIntervals[idx] = setInterval(() => updateCountdown(vms[idx].id), 1000);
+                        showIsland(`VM "${username}" created!`, 'success');
                         refreshFormCredentials();
-                        canvasConfetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
                     }
                 } else {
                     updateCreateProgress(0, 0, 'failed!');
-                    showToast(data.error || 'Creation failed', 'error');
-                    const vmIndex = vms.findIndex(v => v.id === newVM.id);
-                    if (vmIndex !== -1) vms[vmIndex].status = 'failed';
+                    showIsland(data.error || 'Creation failed', 'error');
+                    const idx = vms.findIndex(v => v.id === newVM.id);
+                    if (idx !== -1) vms[idx].status = 'failed';
                     renderVMList();
                 }
-            } catch (err) {
+            } catch(e) {
                 updateCreateProgress(0, 0, 'connection error!');
-                showToast('Connection error', 'error');
+                showIsland('Connection error', 'error');
             } finally {
                 elements.createBtn.disabled = false;
                 elements.createBtn.innerHTML = '<i class="fas fa-play"></i> vm create --start';
@@ -1299,60 +1478,81 @@
             }
         }
         
+        async function loadVMs() {
+            try {
+                const res = await fetch(API_URL);
+                if (!res.ok) return;
+                const data = await res.json();
+                if (data.success && data.vms) {
+                    for (const newVm of data.vms) {
+                        const idx = vms.findIndex(v => v.id === newVm.id);
+                        if (idx !== -1) vms[idx] = { ...vms[idx], ...newVm };
+                        else { vms.push(newVm); passwordVisible[newVm.id] = false; }
+                    }
+                    vms = vms.filter(v => data.vms.some(nv => nv.id === v.id));
+                    renderVMList();
+                }
+            } catch(e) { addDebugLog('Load error: ' + e.message, 'error'); }
+        }
+        
         // ============================================ //
         // EVENT LISTENERS
         // ============================================ //
         document.getElementById('createBtn').onclick = createVM;
-        document.getElementById('randomUserBtn').onclick = () => { elements.vmUsername.value = randomUsername(); showToast('Username generated', 'info'); };
-        document.getElementById('randomPassBtn').onclick = () => { elements.vmPassword.value = randomPassword(); showToast('Password generated', 'info'); };
-        document.getElementById('demoBtn').onclick = () => { 
-            elements.githubToken.value = 'ghp_demo_token_123456789'; 
-            elements.tailscaleKey.value = 'tskey_demo_key_123456789'; 
-            showToast('Demo tokens filled', 'info');
-        };
-        document.getElementById('clearBtn').onclick = () => { 
-            elements.githubToken.value = ''; 
-            elements.tailscaleKey.value = ''; 
-            elements.vmUsername.value = ''; 
-            elements.vmPassword.value = ''; 
-            showToast('Form cleared', 'info');
-        };
-        document.getElementById('refreshBtn').onclick = () => { currentPage = 1; loadVMs(); showToast('Refreshing...', 'info'); };
-        document.getElementById('manualRefreshBtn').onclick = () => { currentPage = 1; loadVMs(); showToast('Syncing...', 'info'); };
-        document.getElementById('saveConfigBtn').onclick = () => { 
-            localStorage.setItem(CONFIG_KEY, JSON.stringify({ 
-                githubToken: elements.githubToken.value, 
-                tailscaleKey: elements.tailscaleKey.value 
-            })); 
-            showToast('Config saved', 'success');
-        };
-        document.getElementById('loadConfigBtn').onclick = () => { 
-            const config = JSON.parse(localStorage.getItem(CONFIG_KEY) || '{}'); 
-            if (config.githubToken) elements.githubToken.value = config.githubToken; 
-            if (config.tailscaleKey) elements.tailscaleKey.value = config.tailscaleKey; 
-            showToast('Config loaded', 'success');
-        };
+        document.getElementById('randomUserBtn').onclick = () => { elements.vmUsername.value = randomUsername(); showIsland('Username generated', 'info'); };
+        document.getElementById('randomPassBtn').onclick = () => { elements.vmPassword.value = randomPassword(); showIsland('Password generated', 'info'); };
+        document.getElementById('demoBtn').onclick = () => { elements.githubToken.value = 'ghp_demo_token'; elements.tailscaleKey.value = 'tskey_demo_key'; showIsland('Demo tokens filled', 'info'); };
+        document.getElementById('clearBtn').onclick = () => { elements.githubToken.value = ''; elements.tailscaleKey.value = ''; elements.vmUsername.value = ''; elements.vmPassword.value = ''; showIsland('Form cleared', 'info'); };
+        document.getElementById('refreshBtn').onclick = () => { loadVMs(); showIsland('Refreshing...', 'info'); };
+        document.getElementById('manualRefreshBtn').onclick = () => { loadVMs(); showIsland('Syncing...', 'info'); };
+        document.getElementById('saveConfigBtn').onclick = () => { localStorage.setItem(CONFIG_KEY, JSON.stringify({ githubToken: elements.githubToken.value, tailscaleKey: elements.tailscaleKey.value })); showIsland('Config saved', 'success'); };
+        document.getElementById('loadConfigBtn').onclick = () => { const cfg = JSON.parse(localStorage.getItem(CONFIG_KEY) || '{}'); if (cfg.githubToken) elements.githubToken.value = cfg.githubToken; if (cfg.tailscaleKey) elements.tailscaleKey.value = cfg.tailscaleKey; showIsland('Config loaded', 'success'); };
         
         elements.filterSelect.onchange = (e) => { currentFilter = e.target.value; currentPage = 1; renderVMList(); };
         elements.sortSelect.onchange = (e) => { currentSort = e.target.value; currentPage = 1; renderVMList(); };
         let searchTimeout;
-        elements.searchInput.oninput = () => { 
-            clearTimeout(searchTimeout); 
-            searchTimeout = setTimeout(() => { currentPage = 1; renderVMList(); }, 300); 
+        elements.searchInput.oninput = () => { clearTimeout(searchTimeout); searchTimeout = setTimeout(() => { currentPage = 1; renderVMList(); }, 300); };
+        
+        // Fake Terminal
+        const terminalModal = document.getElementById('fakeTerminalModal');
+        document.getElementById('openTerminalBtn').onclick = () => terminalModal.classList.add('open');
+        document.getElementById('closeTerminalBtn').onclick = () => terminalModal.classList.remove('open');
+        const terminalInput = document.getElementById('terminalCommand');
+        terminalInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                processTerminalCommand(terminalInput.value);
+                terminalInput.value = '';
+            }
+        });
+        terminalModal.onclick = (e) => { if (e.target === terminalModal) terminalModal.classList.remove('open'); };
+        
+        // Debug Panel
+        const debugPanel = document.getElementById('debugPanel');
+        let debugOpen = true;
+        document.getElementById('debugHeader').onclick = () => {
+            debugOpen = !debugOpen;
+            debugPanel.classList.toggle('open', debugOpen);
+        };
+        document.getElementById('debugClearBtn').onclick = () => { elements.debugContent.innerHTML = ''; addDebugLog('Console cleared', 'info'); };
+        let filterIdx = 0;
+        const filters = ['all', 'info', 'success', 'warning', 'error'];
+        document.getElementById('debugFilterBtn').onclick = () => {
+            filterIdx = (filterIdx + 1) % filters.length;
+            currentDebugFilter = filters[filterIdx];
+            document.getElementById('debugFilterBtn').innerHTML = `<i class="fas fa-filter"></i> ${currentDebugFilter}`;
+            addDebugLog(`Filter: ${currentDebugFilter}`, 'info');
+            renderVMList();
         };
         
-        // Auto refresh
-        function startAutoRefresh() {
-            if (autoRefreshInterval) clearInterval(autoRefreshInterval);
-            autoRefreshInterval = setInterval(() => { loadVMs(); }, 15000);
-        }
-        
-        // Khởi tạo
+        // Init
         refreshFormCredentials();
+        loadFromLocal();
         loadVMs();
-        startAutoRefresh();
+        setInterval(loadVMs, 15000);
         
-        showDynamicIsland('SYSTEM READY', 'Terminal mode activated', 'success', 3000);
+        addDebugLog('🚀 Quantum Terminal v3.0 initialized', 'success');
+        addDebugLog('🎨 Terminal design with matrix rain, glassmorphism', 'info');
+        addDebugLog('🖥️ Fake terminal with commands: help, ls, refresh, create, delete', 'success');
     </script>
 </body>
 </html>
