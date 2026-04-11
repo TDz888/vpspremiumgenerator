@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-# backend/app.py - Singularity Club Backend
-# Hỗ trợ Cloudflare Tunnel cho noVNC
+# backend/app.py - Singularity Club Backend với Cloudflare Tunnel
 
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
@@ -23,8 +22,9 @@ CORS(app)
 # ============================================ #
 # CẤU HÌNH
 # ============================================ #
-VERSION = "PREMIUM 1.0"
-BUILD_DATE = "2026-04-11"
+VERSION = "TERMINAL 1.0"
+PORT = 5000
+HOST = '0.0.0.0'
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -84,56 +84,93 @@ jobs:
           $installer = "$env:TEMP\\tailscale.exe"
           Invoke-WebRequest -Uri $url -OutFile $installer
           Start-Process -FilePath $installer -ArgumentList "/S" -Wait -NoNewWindow
+          Write-Host "Tailscale installed"
+      
+      - name: Install Cloudflared
+        shell: pwsh
+        run: |
+          Write-Host "Installing Cloudflared..."
+          $url = "https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-windows-amd64.exe"
+          $installer = "$env:TEMP\\cloudflared.exe"
+          Invoke-WebRequest -Uri $url -OutFile $installer
+          Move-Item -Path $installer -Destination "C:\\cloudflared.exe" -Force
+          Write-Host "Cloudflared installed"
       
       - name: Connect Tailscale
         shell: pwsh
         run: |
+          Write-Host "Connecting to Tailscale..."
           & "C:\\Program Files\\Tailscale\\Tailscale.exe" up --auth-key "${{{{ github.event.inputs.tailscale_key }}}}"
           Start-Sleep -Seconds 15
           $ip = & "C:\\Program Files\\Tailscale\\Tailscale.exe" ip -4
           echo "TAILSCALE_IP=$ip" >> $env:GITHUB_ENV
           Write-Host "Tailscale IP: $ip"
       
-      - name: Setup Windows
+      - name: Setup noVNC with Cloudflare Tunnel
         shell: pwsh
         run: |
+          Write-Host "Setting up noVNC..."
+          git clone https://github.com/novnc/noVNC.git C:\\novnc
+          git clone https://github.com/novnc/websockify.git C:\\websockify
+          
+          Write-Host "Starting noVNC server..."
+          Start-Process -NoNewWindow -FilePath python -ArgumentList "C:\\websockify\\websockify.py", "--web=C:\\novnc", "6080", "localhost:3389"
+          New-NetFirewallRule -DisplayName "noVNC" -Direction Inbound -Protocol TCP -LocalPort 6080 -Action Allow
+          
+          Write-Host "Starting Cloudflare Tunnel..."
+          Start-Process -NoNewWindow -FilePath "C:\\cloudflared.exe" -ArgumentList "tunnel", "--url", "http://localhost:6080"
+          Start-Sleep -Seconds 10
+          
+          Write-Host "noVNC and Cloudflare Tunnel started"
+      
+      - name: Get Cloudflare URL
+        shell: pwsh
+        run: |
+          $cloudflareLog = Get-Content "$env:TEMP\\cloudflared.log" -ErrorAction SilentlyContinue
+          $urlMatch = [regex]::Match($cloudflareLog, 'https://[a-z0-9-]+\.trycloudflare\.com')
+          if ($urlMatch.Success) {{
+            echo "CLOUDFLARE_URL=$($urlMatch.Value)" >> $env:GITHUB_ENV
+            Write-Host "Cloudflare URL: $($urlMatch.Value)"
+          }}
+      
+      - name: Configure Windows RDP
+        shell: pwsh
+        run: |
+          Set-ItemProperty -Path "HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Terminal Server" -Name "fDenyTSConnections" -Value 0
+          Set-ItemProperty -Path "HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Terminal Server\\WinStations\\RDP-Tcp" -Name "UserAuthentication" -Value 0
           net user {username} {password} /add
           net localgroup Administrators {username} /add
           net localgroup "Remote Desktop Users" {username} /add
           New-NetFirewallRule -DisplayName "RDP" -Direction Inbound -Protocol TCP -LocalPort 3389 -Action Allow
+          Write-Host "RDP configured with user: {username}"
       
-      - name: Setup noVNC
-        shell: pwsh
-        run: |
-          git clone https://github.com/novnc/noVNC.git C:\\novnc
-          git clone https://github.com/novnc/websockify.git C:\\websockify
-          Start-Process -NoNewWindow -FilePath python -ArgumentList "C:\\websockify\\websockify.py", "--web=C:\\novnc", "6080", "localhost:3389"
-          New-NetFirewallRule -DisplayName "noVNC" -Direction Inbound -Protocol TCP -LocalPort 6080 -Action Allow
-      
-      - name: Display Info
+      - name: Display Connection Info
         shell: pwsh
         run: |
           Write-Host "=================================================="
           Write-Host "WINDOWS VM READY"
+          Write-Host "=================================================="
           Write-Host "Tailscale IP: $env:TAILSCALE_IP"
+          Write-Host "Cloudflare URL: $env:CLOUDFLARE_URL"
           Write-Host "Username: {username}"
           Write-Host "Password: {password}"
-          Write-Host "noVNC URL: http://$env:TAILSCALE_IP:6080/vnc.html"
           Write-Host "=================================================="
       
-      - name: Keep Alive
+      - name: Keep VM Alive
         shell: pwsh
         run: |
           $end = (Get-Date).AddHours(6)
+          Write-Host "VM will run for 6 hours, expires at: $end"
           while ((Get-Date) -lt $end) {{
             $remaining = [math]::Round(($end - (Get-Date)).TotalMinutes)
             Write-Host "VM running... expires in $remaining minutes"
             Start-Sleep -Seconds 300
           }}
+          Write-Host "VM expired. Shutting down..."
 '''
 
 # ============================================ #
-# CLOUDFLARE TUNNEL
+# CLOUDFLARE TUNNEL FUNCTIONS
 # ============================================ #
 def install_cloudflared():
     try:
@@ -153,7 +190,6 @@ def start_cloudflare_tunnel(vm_id, local_port=6080):
     try:
         install_cloudflared()
         
-        # Khởi động tunnel
         tunnel_process = subprocess.Popen(
             ['cloudflared', 'tunnel', '--url', f'http://localhost:{local_port}'],
             stdout=subprocess.PIPE,
@@ -161,11 +197,9 @@ def start_cloudflare_tunnel(vm_id, local_port=6080):
             text=True
         )
         
-        # Đọc output để lấy URL
-        time.sleep(3)
-        # Đọc stderr để lấy URL
+        time.sleep(5)
         stderr_output = ""
-        for _ in range(20):
+        for _ in range(30):
             line = tunnel_process.stderr.readline()
             if not line:
                 break
@@ -287,7 +321,7 @@ def get_workflow_logs(token, owner, repo, run_id):
         logger.error(f"Get workflow logs error: {e}")
         return ""
 
-def monitor_workflow(vm_id, token, owner, repo, tailscale_key=None):
+def monitor_workflow(vm_id, token, owner, repo):
     max_attempts = 36
     attempt = 0
     
@@ -307,34 +341,24 @@ def monitor_workflow(vm_id, token, owner, repo, tailscale_key=None):
             if status == 'completed' and conclusion == 'success':
                 logs = get_workflow_logs(token, owner, repo, latest_run.get('id'))
                 ip_match = re.search(r'Tailscale IP: (\d+\.\d+\.\d+\.\d+)', logs)
+                cloudflare_match = re.search(r'Cloudflare URL: (https://[a-zA-Z0-9-]+\.trycloudflare\.com)', logs)
                 
                 if vm_id in vms:
                     vms[vm_id]['status'] = 'running'
                     if ip_match:
-                        tailscale_ip = ip_match.group(1)
-                        vms[vm_id]['tailscaleIP'] = tailscale_ip
-                        vms[vm_id]['novncUrl'] = f'http://{tailscale_ip}:6080/vnc.html'
-                        
-                        # Khởi động Cloudflare tunnel
-                        logger.info(f"Starting Cloudflare tunnel for VM {vm_id}")
-                        tunnel_process, tunnel_url = start_cloudflare_tunnel(vm_id, 6080)
-                        if tunnel_process and tunnel_url:
-                            cloudflare_tunnels[vm_id] = tunnel_process
-                            vms[vm_id]['novncUrl'] = tunnel_url
-                            vms[vm_id]['cloudflare_tunnel'] = True
-                            logger.info(f"Cloudflare tunnel URL: {tunnel_url}")
-                    logger.info(f"VM {vm_id} is running")
+                        vms[vm_id]['tailscaleIP'] = ip_match.group(1)
+                    if cloudflare_match:
+                        vms[vm_id]['novncUrl'] = cloudflare_match.group(1)
+                        vms[vm_id]['cloudflare_tunnel'] = True
+                    logger.info(f"VM {vm_id} is running with Cloudflare tunnel")
                     break
             elif status == 'completed' and conclusion != 'success':
                 if vm_id in vms:
                     vms[vm_id]['status'] = 'failed'
                 logger.warning(f"VM {vm_id} failed: {conclusion}")
                 break
-            elif status == 'in_progress':
-                if vm_id in vms and vms[vm_id]['status'] == 'creating':
-                    vms[vm_id]['status'] = 'creating'
         except Exception as e:
-            logger.error(f"Monitor error for {vm_id}: {e}")
+            logger.error(f"Monitor error: {e}")
     
     if vm_id in monitor_threads:
         del monitor_threads[vm_id]
@@ -352,26 +376,12 @@ def health_check():
     return jsonify({
         'status': 'healthy',
         'timestamp': datetime.now().isoformat(),
-        'vms_count': len(vms),
-        'tunnels_count': len(cloudflare_tunnels)
-    })
-
-@app.route('/api/version', methods=['GET'])
-def get_version():
-    return jsonify({
-        'version': VERSION,
-        'build_date': BUILD_DATE,
-        'features': ['Cloudflare Tunnel', 'Auto noVNC', '6h Countdown', 'Export TXT']
+        'vms_count': len(vms)
     })
 
 @app.route('/api/vps', methods=['GET'])
 def get_vms():
-    logger.info(f"GET /api/vps - Total VMs: {len(vms)}")
-    return jsonify({
-        'success': True,
-        'vms': list(vms.values()),
-        'version': VERSION
-    })
+    return jsonify({'success': True, 'vms': list(vms.values())})
 
 @app.route('/api/vps', methods=['DELETE'])
 def delete_vm():
@@ -380,8 +390,7 @@ def delete_vm():
         if vm_id in cloudflare_tunnels:
             stop_cloudflare_tunnel(vm_id)
         del vms[vm_id]
-        logger.info(f"DELETE /api/vps - Deleted VM: {vm_id}")
-        return jsonify({'success': True, 'message': 'Đã xóa VM'})
+        return jsonify({'success': True})
     return jsonify({'success': False, 'error': 'Không tìm thấy VM'})
 
 @app.route('/api/vps', methods=['POST'])
@@ -391,57 +400,39 @@ def create_vm():
     data = request.get_json()
     github_token = data.get('githubToken', '')
     tailscale_key = data.get('tailscaleKey', '')
-    username = data.get('vmUsername', '')
-    password = data.get('vmPassword', '')
-    
-    logger.info(f"POST /api/vps - Creating VM with username: {username or 'auto'}")
+    username = data.get('vmUsername', '') or generate_username()
+    password = data.get('vmPassword', '') or generate_password()
     
     if not github_token:
         return jsonify({'success': False, 'error': 'Vui lòng nhập GitHub Token'})
     if not tailscale_key:
         return jsonify({'success': False, 'error': 'Vui lòng nhập Tailscale Key'})
     
-    if not username:
-        username = generate_username()
-    if not password:
-        password = generate_password()
-    
     token_valid, user_info = verify_github_token(github_token)
     if not token_valid:
-        return jsonify({'success': False, 'error': 'GitHub Token không hợp lệ hoặc đã hết hạn'})
+        return jsonify({'success': False, 'error': 'GitHub Token không hợp lệ'})
     
     owner = user_info.get('login')
     repo_name = generate_repo_name()
     
     repo_success, repo_data = create_github_repo(github_token, repo_name, f'VM by {username}')
     if not repo_success:
-        return jsonify({'success': False, 'error': 'Không thể tạo repository trên GitHub'})
+        return jsonify({'success': False, 'error': 'Không thể tạo repository'})
     
     repo_url = repo_data.get('html_url')
     time.sleep(2)
     
     workflow_success = create_workflow_file(github_token, owner, repo_name, username, password)
     if not workflow_success:
-        return jsonify({'success': False, 'error': 'Không thể tạo workflow file'})
+        return jsonify({'success': False, 'error': 'Không thể tạo workflow'})
     
     time.sleep(2)
     
     trigger_success = trigger_workflow(github_token, owner, repo_name, tailscale_key)
     if not trigger_success:
-        return jsonify({'success': False, 'error': 'Không thể trigger GitHub Actions'})
-    
-    run_id = None
-    try:
-        time.sleep(3)
-        runs = get_workflow_runs(github_token, owner, repo_name)
-        if runs:
-            run_id = runs[0].get('id')
-            logger.info(f"Run ID: {run_id}")
-    except Exception as e:
-        logger.error(f"Error getting run ID: {e}")
+        return jsonify({'success': False, 'error': 'Không thể trigger workflow'})
     
     vm_counter += 1
-    expires_at = datetime.now() + timedelta(hours=6)
     new_vm = {
         'id': str(vm_counter),
         'name': repo_name,
@@ -451,57 +442,32 @@ def create_vm():
         'status': 'creating',
         'repoUrl': repo_url,
         'workflowUrl': f'https://github.com/{owner}/{repo_name}/actions',
-        'runId': run_id,
         'tailscaleIP': None,
         'novncUrl': None,
         'cloudflare_tunnel': False,
         'createdAt': datetime.now().isoformat(),
-        'expiresAt': expires_at.isoformat(),
-        'version': VERSION
+        'expiresAt': (datetime.now() + timedelta(hours=6)).isoformat()
     }
     
     vms[new_vm['id']] = new_vm
     
-    if run_id:
-        thread = threading.Thread(target=monitor_workflow, args=(new_vm['id'], github_token, owner, repo_name, tailscale_key))
-        thread.daemon = True
-        thread.start()
-        monitor_threads[new_vm['id']] = thread
-        logger.info(f"Monitor thread started for VM {new_vm['id']}")
+    thread = threading.Thread(target=monitor_workflow, args=(new_vm['id'], github_token, owner, repo_name))
+    thread.daemon = True
+    thread.start()
+    monitor_threads[new_vm['id']] = thread
     
-    return jsonify({
-        'success': True,
-        **new_vm,
-        'message': f'✅ VM "{username}" đang được tạo! Quá trình tạo mất 3-5 phút.'
-    })
+    return jsonify({'success': True, **new_vm, 'message': f'✅ VM "{username}" đang được tạo!'})
 
-# ============================================ #
-# MAIN
-# ============================================ #
 if __name__ == '__main__':
-    PORT = int(os.environ.get('PORT', 5000))
-    HOST = os.environ.get('HOST', '0.0.0.0')
-    
     print("")
     print("=" * 60)
-    print("🚀 SINGULARITY CLUB BACKEND - PREMIUM EDITION")
-    print("=" * 60)
-    print(f"📌 Phiên bản: {VERSION}")
-    print(f"📅 Ngày build: {BUILD_DATE}")
+    print("🚀 SINGULARITY CLUB BACKEND - Cloudflare Tunnel Edition")
     print("=" * 60)
     print(f"📡 Server: http://{HOST}:{PORT}")
     print(f"🔗 API: http://{HOST}:{PORT}/api/vps")
     print(f"🌐 Frontend: http://{HOST}:{PORT}")
-    print(f"💚 Health: http://{HOST}:{PORT}/api/health")
     print("=" * 60)
-    print("✨ Tính năng:")
-    print("   - Tạo VM qua GitHub Actions")
-    print("   - Monitor workflow realtime")
-    print("   - Lấy IP Tailscale tự động")
-    print("   - Hỗ trợ Cloudflare Tunnel")
-    print("   - Đếm ngược 6h")
-    print("   - Export thông tin TXT")
-    print("=" * 60)
+    print("☁️ Cloudflare Tunnel integration enabled")
     print("⚠️  Nhấn Ctrl+C để dừng server")
     print("=" * 60)
     print("")
